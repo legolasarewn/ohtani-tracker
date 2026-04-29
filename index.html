@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1E40AF">
+<title>大谷翔平比賽追蹤</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root {
+    --bg: #f5f5f4;
+    --card-bg: #ffffff;
+    --text: #1c1c1c;
+    --text-secondary: #6b6b6b;
+    --text-tertiary: #9a9a9a;
+    --border: rgba(0,0,0,0.08);
+    --accent: #1E40AF;
+    --success-bg: #d1fae5;
+    --success-text: #065f46;
+    --info-bg: #dbeafe;
+    --info-text: #1e40af;
+    --danger-bg: #fee2e2;
+    --danger-text: #991b1b;
+    --warning-bg: #fef3c7;
+    --warning-text: #92400e;
+    --countdown-bg: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+    --live-bg: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f0f0f;
+      --card-bg: #1c1c1c;
+      --text: #f5f5f4;
+      --text-secondary: #a8a8a8;
+      --text-tertiary: #6b6b6b;
+      --border: rgba(255,255,255,0.1);
+      --success-bg: #064e3b;
+      --success-text: #6ee7b7;
+      --info-bg: #1e3a8a;
+      --info-text: #93c5fd;
+      --danger-bg: #7f1d1d;
+      --danger-text: #fca5a5;
+      --warning-bg: #78350f;
+      --warning-text: #fcd34d;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    min-height: 100vh;
+  }
+  .container { max-width: 480px; margin: 0 auto; padding: 16px; }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 4px 4px 0;
+  }
+  .header h1 { font-size: 18px; font-weight: 600; }
+  .refresh-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .refresh-btn:active { transform: scale(0.97); }
+  .refresh-btn:disabled { opacity: 0.5; }
+  .card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 0.5px solid var(--border);
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  /* === 即時比分卡片 === */
+  .live-card {
+    background: var(--live-bg);
+    color: white;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border: none;
+  }
+  .live-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .live-tag {
+    background: white;
+    color: #DC2626;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+  }
+  .inning-info {
+    font-size: 14px;
+    opacity: 0.95;
+  }
+  .live-score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .team-block { flex: 1; }
+  .team-name { font-size: 13px; opacity: 0.9; margin-bottom: 4px; }
+  .team-score {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .team-block.right { text-align: right; }
+  .vs-divider {
+    font-size: 14px;
+    opacity: 0.6;
+    margin: 0 12px;
+  }
+  .live-status {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .field-diamond {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+  .base {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: rgba(255,255,255,0.3);
+    border: 1.5px solid rgba(255,255,255,0.6);
+    transform: rotate(45deg);
+  }
+  .base.occupied {
+    background: #FCD34D;
+    border-color: #FBBF24;
+  }
+  .base.first { right: 4px; top: 50%; transform: translateY(-50%) rotate(45deg); }
+  .base.second { left: 50%; top: 4px; transform: translateX(-50%) rotate(45deg); }
+  .base.third { left: 4px; top: 50%; transform: translateY(-50%) rotate(45deg); }
+  .count-info { flex: 1; }
+  .count-row {
+    display: flex;
+    gap: 10px;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .count-label { opacity: 0.8; }
+  .count-value { font-weight: 600; }
+  .outs-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .out-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    border: 1.5px solid rgba(255,255,255,0.5);
+  }
+  .out-dot.active {
+    background: white;
+    border-color: white;
+  }
+  .live-batter {
+    background: rgba(0,0,0,0.18);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  .batter-label { opacity: 0.85; margin-bottom: 4px; font-size: 12px; }
+  .ohtani-live-stats {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 10px;
+  }
+  .ohtani-live-title {
+    font-size: 12px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+  }
+  .ohtani-live-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .live-stat-cell {
+    text-align: center;
+  }
+  .live-stat-num {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .live-stat-lbl {
+    font-size: 10px;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  /* === 下一場比賽卡片 === */
+  .next-game-card {
+    background: var(--countdown-bg);
+    color: white;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border: none;
+  }
+  .next-game-label {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .next-game-matchup {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .countdown-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .countdown-cell {
+    flex: 1;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 10px 4px;
+    text-align: center;
+  }
+  .countdown-num {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .countdown-unit {
+    font-size: 11px;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+  .next-game-time {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-top: 12px;
+  }
+  .pitcher-matchup {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 14px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .pitcher-side {
+    flex: 1;
+    min-width: 0;
+  }
+  .pitcher-side.right { text-align: right; }
+  .pitcher-team {
+    font-size: 11px;
+    opacity: 0.75;
+    margin-bottom: 3px;
+  }
+  .pitcher-name {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+  .pitcher-record {
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+  .pitcher-vs {
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    opacity: 0.7;
+    padding: 0 4px;
+  }
+
+  /* === 玩家卡片 === */
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .player-info { flex: 1; }
+  .player-name { font-weight: 600; font-size: 16px; }
+  .player-pos { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .badge { font-size: 12px; padding: 4px 10px; border-radius: 8px; font-weight: 500; }
+  .badge-win { background: var(--success-bg); color: var(--success-text); }
+  .badge-loss { background: var(--danger-bg); color: var(--danger-text); }
+  .score-box {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .score-row { display: flex; justify-content: space-between; align-items: center; }
+  .score-num { font-weight: 600; font-size: 18px; }
+  .score-vs { color: var(--text-tertiary); font-size: 12px; }
+  .score-date { font-size: 12px; color: var(--text-tertiary); margin-top: 6px; text-align: center; }
+  .section-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .stats-grid:last-child { margin-bottom: 0; }
+  .stat-cell {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 4px;
+    text-align: center;
+  }
+  .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat-value { font-size: 20px; font-weight: 600; }
+  .stat-value.highlight { color: var(--success-text); }
+  .pitcher-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+  .pitcher-table td { padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+  .pitcher-table tr:last-child td { border-bottom: none; }
+  .pitcher-table td:first-child { color: var(--text-secondary); }
+  .pitcher-table td:last-child { text-align: right; }
+  .highlight-box {
+    background: var(--info-bg);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--info-text);
+    line-height: 1.6;
+  }
+  .note { font-size: 12px; color: var(--text-tertiary); margin-top: 12px; }
+  .loading, .error {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  .error { color: var(--danger-text); }
+  .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .updated {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin: 8px 0 16px;
+  }
+  .auto-refresh-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>大谷翔平 #17</h1>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">重新整理</button>
+  </div>
+
+  <div id="content">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>正在抓取最新比賽數據...</div>
+    </div>
+  </div>
+
+  <div class="updated" id="updated"></div>
+
+</div>
+
+<script>
+const PLAYER_ID = 660271;
+const TEAM_ID = 119;
+const SEASON = new Date().getFullYear();
+const LIVE_REFRESH_MS = 30000; // 30 秒
+
+let countdownInterval = null;
+let liveRefreshInterval = null;
+let currentLiveGamePk = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
+  });
+}
+
+async function loadAll() {
+  if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+  if (liveRefreshInterval) { clearInterval(liveRefreshInterval); liveRefreshInterval = null; }
+  currentLiveGamePk = null;
+
+  const content = document.getElementById('content');
+  const refreshBtn = document.getElementById('refreshBtn');
+  refreshBtn.disabled = true;
+  content.innerHTML = '<div class="loading"><div class="spinner"></div><div>正在抓取最新比賽數據...</div></div>';
+
+  try {
+    const today = new Date();
+    const fmt = d => d.toISOString().split('T')[0];
+
+    const past = new Date(today);
+    past.setDate(today.getDate() - 14);
+    const future = new Date(today);
+    future.setDate(today.getDate() + 14);
+
+    const scheduleUrl = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${TEAM_ID}&startDate=${fmt(past)}&endDate=${fmt(future)}&hydrate=team,probablePitcher`;
+    const seasonStatsUrl = `https://statsapi.mlb.com/api/v1/people/${PLAYER_ID}/stats?stats=season&season=${SEASON}&group=hitting,pitching`;
+
+    const [scheduleRes, statsRes] = await Promise.all([
+      fetch(scheduleUrl),
+      fetch(seasonStatsUrl)
+    ]);
+    const schedule = await scheduleRes.json();
+    const seasonStats = await statsRes.json();
+
+    let lastFinishedGame = null;
+    let nextGame = null;
+    let liveGame = null;
+    const nowMs = today.getTime();
+
+    for (const day of schedule.dates) {
+      for (const game of day.games) {
+        const gameTime = new Date(game.gameDate).getTime();
+        const state = game.status.detailedState;
+        const coded = game.status.codedGameState;
+
+        // 比賽進行中
+        if (coded === 'I' || state === 'In Progress' || state === 'Manager challenge' || state === 'Replay') {
+          liveGame = game;
+        } else if (state === 'Final' || coded === 'F') {
+          if (!lastFinishedGame || gameTime > new Date(lastFinishedGame.gameDate).getTime()) {
+            lastFinishedGame = game;
+          }
+        } else if (gameTime > nowMs || coded === 'P' || state === 'Pre-Game' || state === 'Warmup' || state === 'Scheduled') {
+          if (!nextGame || gameTime < new Date(nextGame.gameDate).getTime()) {
+            nextGame = game;
+          }
+        }
+      }
+    }
+
+    let html = '';
+
+    // 1. 即時比賽卡片（最優先）
+    if (liveGame) {
+      const liveHtml = await renderLiveGame(liveGame);
+      html += liveHtml;
+      currentLiveGamePk = liveGame.gamePk;
+    } else if (nextGame) {
+      // 沒有即時比賽，才顯示下一場倒數
+      html += await renderNextGame(nextGame);
+    }
+
+    // 2. 最近一場
+    if (lastFinishedGame) {
+      html += await renderLastGame(lastFinishedGame);
+    } else if (!liveGame) {
+      html += '<div class="card"><div class="error" style="padding:20px;">最近 14 天內找不到道奇隊已結束的比賽</div></div>';
+    }
+
+    // 3. 本季累計
+    html += renderSeasonStats(seasonStats);
+
+    content.innerHTML = html;
+
+    if (nextGame && !liveGame) {
+      startCountdown(nextGame);
+    }
+
+    if (liveGame) {
+      // 啟動每 30 秒自動更新
+      liveRefreshInterval = setInterval(() => refreshLiveGame(currentLiveGamePk), LIVE_REFRESH_MS);
+    }
+
+    updateTimestamp(!!liveGame);
+
+  } catch (err) {
+    content.innerHTML = `<div class="error">載入失敗：${err.message}<br><br>請檢查網路連線後再試一次</div>`;
+    console.error(err);
+  } finally {
+    refreshBtn.disabled = false;
+  }
+}
+
+function updateTimestamp(isLive) {
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+  const liveIndicator = isLive ? '<span class="auto-refresh-indicator"></span>每 30 秒自動更新中 · ' : '';
+  document.getElementById('updated').innerHTML = `${liveIndicator}資料更新於 ${timeStr} · 來源：MLB Stats API`;
+}
+
+async function refreshLiveGame(gamePk) {
+  if (!gamePk) return;
+  try {
+    const liveCard = document.getElementById('liveCard');
+    if (!liveCard) {
+      // 即時卡片不見了，重新整體載入
+      loadAll();
+      return;
+    }
+    const newHtml = await renderLiveGame({ gamePk });
+    // 替換即時卡片內容
+    const temp = document.createElement('div');
+    temp.innerHTML = newHtml;
+    const newCard = temp.querySelector('#liveCard');
+    if (newCard) {
+      liveCard.replaceWith(newCard);
+    } else {
+      // 比賽結束了，整體重整
+      loadAll();
+      return;
+    }
+    updateTimestamp(true);
+  } catch (err) {
+    console.log('Live refresh failed:', err);
+  }
+}
+
+async function renderLiveGame(game) {
+  const gamePk = game.gamePk;
+  const [feedRes, boxRes] = await Promise.all([
+    fetch(`https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`),
+    fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`)
+  ]);
+  const feed = await feedRes.json();
+  const boxscore = await boxRes.json();
+
+  const liveData = feed.liveData || {};
+  const linescore = liveData.linescore || {};
+  const plays = liveData.plays || {};
+  const currentPlay = plays.currentPlay || {};
+
+  const gameData = feed.gameData || {};
+  const teams = gameData.teams || {};
+  const homeTeam = teams.home || {};
+  const awayTeam = teams.away || {};
+  const isDodgersHome = homeTeam.id === TEAM_ID;
+  const opponentTeam = isDodgersHome ? awayTeam : homeTeam;
+
+  // 比分
+  const homeScore = linescore.teams?.home?.runs ?? 0;
+  const awayScore = linescore.teams?.away?.runs ?? 0;
+  const dodgersScore = isDodgersHome ? homeScore : awayScore;
+  const opponentScore = isDodgersHome ? awayScore : homeScore;
+
+  // 局數
+  const inning = linescore.currentInning ?? 1;
+  const inningHalf = linescore.inningHalf || 'Top'; // Top or Bottom
+  const inningHalfZh = inningHalf === 'Top' ? '上' : '下';
+
+  // 出局數、好壞球
+  const outs = linescore.outs ?? 0;
+  const balls = linescore.balls ?? 0;
+  const strikes = linescore.strikes ?? 0;
+
+  // 壘上跑者
+  const offense = linescore.offense || {};
+  const onFirst = !!offense.first;
+  const onSecond = !!offense.second;
+  const onThird = !!offense.third;
+
+  // 當前打者
+  const currentBatter = offense.batter || currentPlay?.matchup?.batter || null;
+  const batterName = currentBatter?.fullName || '';
+  const isOhtaniBatting = currentBatter?.id === PLAYER_ID;
+
+  // 當前投手
+  const defense = linescore.defense || {};
+  const currentPitcher = defense.pitcher || currentPlay?.matchup?.pitcher || null;
+  const pitcherName = currentPitcher?.fullName || '';
+
+  // 大谷本場數據
+  const dodgersData = isDodgersHome ? boxscore.teams.home : boxscore.teams.away;
+  const ohtaniKey = `ID${PLAYER_ID}`;
+  const ohtani = dodgersData?.players?.[ohtaniKey];
+  const batting = ohtani?.stats?.batting || {};
+  const pitching = ohtani?.stats?.pitching || {};
+
+  const ab = batting.atBats ?? 0;
+  const h = batting.hits ?? 0;
+  const hr = batting.homeRuns ?? 0;
+  const rbi = batting.rbi ?? 0;
+  const r = batting.runs ?? 0;
+  const k = batting.strikeOuts ?? 0;
+  const bb = batting.baseOnBalls ?? 0;
+  const avg = ab > 0 ? (h / ab).toFixed(3).replace(/^0/, '') : '-';
+
+  // 大谷投球（如果他在投）
+  let ohtaniPitchingHtml = '';
+  if (pitching && Object.keys(pitching).length > 0) {
+    const ip = pitching.inningsPitched ?? '0';
+    const pK = pitching.strikeOuts ?? 0;
+    const pBB = pitching.baseOnBalls ?? 0;
+    const pH = pitching.hits ?? 0;
+    const pER = pitching.earnedRuns ?? 0;
+    ohtaniPitchingHtml = `
+      <div class="ohtani-live-stats">
+        <div class="ohtani-live-title">⚾ 大谷本場投球</div>
+        <div class="ohtani-live-grid">
+          <div class="live-stat-cell"><div class="live-stat-num">${ip}</div><div class="live-stat-lbl">局數</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${pK}</div><div class="live-stat-lbl">三振</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${pBB}</div><div class="live-stat-lbl">四壞</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${pH}</div><div class="live-stat-lbl">被安</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${pER}</div><div class="live-stat-lbl">自責</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  const ohtaniBattingHtml = ab > 0 || bb > 0 ? `
+    <div class="ohtani-live-stats">
+      <div class="ohtani-live-title">🥎 大谷本場打擊 ${isOhtaniBatting ? '· 目前打擊中' : ''}</div>
+      <div class="ohtani-live-grid">
+        <div class="live-stat-cell"><div class="live-stat-num">${ab}</div><div class="live-stat-lbl">打數</div></div>
+        <div class="live-stat-cell"><div class="live-stat-num">${h}</div><div class="live-stat-lbl">安打</div></div>
+        <div class="live-stat-cell"><div class="live-stat-num">${hr}</div><div class="live-stat-lbl">全壘打</div></div>
+        <div class="live-stat-cell"><div class="live-stat-num">${rbi}</div><div class="live-stat-lbl">打點</div></div>
+        <div class="live-stat-cell"><div class="live-stat-num">${r}</div><div class="live-stat-lbl">得分</div></div>
+        <div class="live-stat-cell"><div class="live-stat-num">${k}</div><div class="live-stat-lbl">三振</div></div>
+        <div class="live-stat-cell"><div class="live-stat-num">${bb}</div><div class="live-stat-lbl">四壞</div></div>
+        <div class="live-stat-cell"><div class="live-stat-num">${avg}</div><div class="live-stat-lbl">打擊率</div></div>
+      </div>
+    </div>
+  ` : '';
+
+  const opponentZh = translateTeam(opponentTeam.name);
+  const venueText = isDodgersHome ? '主場' : '客場';
+
+  // 出局數圓點
+  const outDots = [0, 1, 2].map(i =>
+    `<div class="out-dot ${i < outs ? 'active' : ''}"></div>`
+  ).join('');
+
+  return `
+    <div class="live-card" id="liveCard">
+      <div class="live-header">
+        <span class="live-tag">● LIVE</span>
+        <span class="inning-info">${inning}局${inningHalfZh}半 · ${venueText}</span>
+      </div>
+
+      <div class="live-score-row">
+        <div class="team-block">
+          <div class="team-name">道奇</div>
+          <div class="team-score">${dodgersScore}</div>
+        </div>
+        <div class="vs-divider">VS</div>
+        <div class="team-block right">
+          <div class="team-name">${opponentZh}</div>
+          <div class="team-score">${opponentScore}</div>
+        </div>
+      </div>
+
+      <div class="live-status">
+        <div class="field-diamond">
+          <div class="base second ${onSecond ? 'occupied' : ''}"></div>
+          <div class="base third ${onThird ? 'occupied' : ''}"></div>
+          <div class="base first ${onFirst ? 'occupied' : ''}"></div>
+        </div>
+        <div class="count-info">
+          <div class="count-row">
+            <span><span class="count-label">B</span> <span class="count-value">${balls}</span></span>
+            <span><span class="count-label">S</span> <span class="count-value">${strikes}</span></span>
+          </div>
+          <div class="outs-row">
+            <span class="count-label">出局</span>
+            ${outDots}
+          </div>
+        </div>
+      </div>
+
+      ${batterName || pitcherName ? `
+        <div class="live-batter">
+          ${batterName ? `<div class="batter-label">打擊：${batterName}${isOhtaniBatting ? ' ⭐' : ''}</div>` : ''}
+          ${pitcherName ? `<div class="batter-label" style="margin-bottom:0;">投球：${pitcherName}</div>` : ''}
+        </div>
+      ` : ''}
+
+      ${ohtaniBattingHtml}
+      ${ohtaniPitchingHtml}
+    </div>
+  `;
+}
+
+async function renderNextGame(game) {
+  const gameTime = new Date(game.gameDate);
+  const isDodgersHome = game.teams.home.team.id === TEAM_ID;
+  const dodgersTeam = isDodgersHome ? game.teams.home : game.teams.away;
+  const opponentTeam = isDodgersHome ? game.teams.away : game.teams.home;
+  const opponentZh = translateTeam(opponentTeam.team.name);
+  const venueText = isDodgersHome ? '主場 vs' : '客場 @';
+
+  const tw = gameTime.toLocaleString('zh-TW', {
+    timeZone: 'Asia/Taipei',
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+
+  // 先發投手資訊
+  const dodgersPitcher = dodgersTeam.probablePitcher;
+  const opponentPitcher = opponentTeam.probablePitcher;
+
+  // 抓兩位先發的本季成績（如果有的話）
+  const fetchPitcherStats = async (pitcher) => {
+    if (!pitcher?.id) return null;
+    try {
+      const res = await fetch(`https://statsapi.mlb.com/api/v1/people/${pitcher.id}/stats?stats=season&season=${SEASON}&group=pitching`);
+      const data = await res.json();
+      const stat = data.stats?.[0]?.splits?.[0]?.stat;
+      if (!stat) return { name: pitcher.fullName };
+      return {
+        name: pitcher.fullName,
+        wins: stat.wins ?? 0,
+        losses: stat.losses ?? 0,
+        era: stat.era ?? '0.00',
+      };
+    } catch {
+      return { name: pitcher.fullName };
+    }
+  };
+
+  const [dodgersInfo, opponentInfo] = await Promise.all([
+    fetchPitcherStats(dodgersPitcher),
+    fetchPitcherStats(opponentPitcher),
+  ]);
+
+  const renderPitcherSide = (info, team, alignRight) => {
+    if (!info) {
+      return `
+        <div class="pitcher-side ${alignRight ? 'right' : ''}">
+          <div class="pitcher-team">${team}</div>
+          <div class="pitcher-name" style="opacity:0.7;">未公布</div>
+        </div>
+      `;
+    }
+    const record = (info.wins !== undefined)
+      ? `${info.wins}勝${info.losses}敗 · ERA ${info.era}`
+      : '';
+    return `
+      <div class="pitcher-side ${alignRight ? 'right' : ''}">
+        <div class="pitcher-team">${team}</div>
+        <div class="pitcher-name">${info.name}</div>
+        ${record ? `<div class="pitcher-record">${record}</div>` : ''}
+      </div>
+    `;
+  };
+
+  const pitcherMatchupHtml = (dodgersPitcher || opponentPitcher) ? `
+    <div class="pitcher-matchup">
+      ${renderPitcherSide(dodgersInfo, '道奇 先發', false)}
+      <div class="pitcher-vs">VS</div>
+      ${renderPitcherSide(opponentInfo, `${opponentZh} 先發`, true)}
+    </div>
+  ` : '';
+
+  return `
+    <div class="next-game-card">
+      <div class="next-game-label">下一場比賽</div>
+      <div class="next-game-matchup">道奇 ${venueText} ${opponentZh}</div>
+      <div class="countdown-row" id="countdown">
+        <div class="countdown-cell"><div class="countdown-num" id="cd-d">--</div><div class="countdown-unit">天</div></div>
+        <div class="countdown-cell"><div class="countdown-num" id="cd-h">--</div><div class="countdown-unit">時</div></div>
+        <div class="countdown-cell"><div class="countdown-num" id="cd-m">--</div><div class="countdown-unit">分</div></div>
+        <div class="countdown-cell"><div class="countdown-num" id="cd-s">--</div><div class="countdown-unit">秒</div></div>
+      </div>
+      <div class="next-game-time">台灣時間：${tw} 開打</div>
+      ${pitcherMatchupHtml}
+    </div>
+  `;
+}
+
+function startCountdown(game) {
+  const target = new Date(game.gameDate).getTime();
+  const update = () => {
+    const diff = target - Date.now();
+    if (diff <= 0) {
+      const cd = document.getElementById('countdown');
+      if (cd) cd.innerHTML = '<div style="text-align:center; padding:8px; font-size:14px;">即將開打 / 比賽進行中</div>';
+      clearInterval(countdownInterval);
+      // 比賽應該開打了，重新整理整個畫面以便偵測即時比賽
+      setTimeout(() => loadAll(), 60000);
+      return;
+    }
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = String(val).padStart(2, '0'); };
+    setEl('cd-d', days);
+    setEl('cd-h', hours);
+    setEl('cd-m', minutes);
+    setEl('cd-s', seconds);
+  };
+  update();
+  countdownInterval = setInterval(update, 1000);
+}
+
+async function renderLastGame(game) {
+  const gamePk = game.gamePk;
+  const [boxRes, lineRes] = await Promise.all([
+    fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`),
+    fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/linescore`)
+  ]);
+  const boxscore = await boxRes.json();
+  const linescore = await lineRes.json();
+
+  const homeTeam = boxscore.teams.home;
+  const awayTeam = boxscore.teams.away;
+  const isDodgersHome = homeTeam.team.id === TEAM_ID;
+  const dodgersData = isDodgersHome ? homeTeam : awayTeam;
+  const opponentData = isDodgersHome ? awayTeam : homeTeam;
+
+  const playerKey = `ID${PLAYER_ID}`;
+  const ohtani = dodgersData.players[playerKey];
+
+  if (!ohtani) {
+    return `<div class="card"><div class="error" style="padding:20px;">大谷翔平在 ${game.gameDate.split('T')[0]} 這場比賽未出賽</div></div>`;
+  }
+
+  const batting = ohtani.stats?.batting || {};
+  const pitching = ohtani.stats?.pitching || {};
+
+  const dodgersScore = isDodgersHome ? linescore.teams.home.runs : linescore.teams.away.runs;
+  const opponentScore = isDodgersHome ? linescore.teams.away.runs : linescore.teams.home.runs;
+  const won = dodgersScore > opponentScore;
+
+  const gameDate = new Date(game.gameDate);
+  const dateStr = `${gameDate.getFullYear()}年${gameDate.getMonth()+1}月${gameDate.getDate()}日`;
+  const venueText = isDodgersHome ? '主場' : '客場';
+  const opponentNameZh = translateTeam(opponentData.team.name);
+
+  const ab = batting.atBats ?? 0;
+  const h = batting.hits ?? 0;
+  const doubles = batting.doubles ?? 0;
+  const triples = batting.triples ?? 0;
+  const hr = batting.homeRuns ?? 0;
+  const rbi = batting.rbi ?? 0;
+  const r = batting.runs ?? 0;
+  const k = batting.strikeOuts ?? 0;
+  const bb = batting.baseOnBalls ?? 0;
+  const sb = batting.stolenBases ?? 0;
+  const avg = ab > 0 ? (h / ab).toFixed(3).replace(/^0/, '') : '.000';
+
+  let pitchingHtml = '';
+  if (pitching && Object.keys(pitching).length > 0) {
+    const ip = pitching.inningsPitched ?? '0';
+    const pH = pitching.hits ?? 0;
+    const pR = pitching.runs ?? 0;
+    const pER = pitching.earnedRuns ?? 0;
+    const pBB = pitching.baseOnBalls ?? 0;
+    const pK = pitching.strikeOuts ?? 0;
+    const pHR = pitching.homeRuns ?? 0;
+    const pitches = pitching.numberOfPitches ?? 0;
+    pitchingHtml = `
+      <div class="section-label">投球表現</div>
+      <div class="stats-grid">
+        <div class="stat-cell"><div class="stat-label">投球局數</div><div class="stat-value">${ip}</div></div>
+        <div class="stat-cell"><div class="stat-label">被安打</div><div class="stat-value">${pH}</div></div>
+        <div class="stat-cell"><div class="stat-label">失分</div><div class="stat-value">${pR}</div></div>
+        <div class="stat-cell"><div class="stat-label">自責分</div><div class="stat-value">${pER}</div></div>
+        <div class="stat-cell"><div class="stat-label">三振</div><div class="stat-value highlight">${pK}</div></div>
+        <div class="stat-cell"><div class="stat-label">四壞</div><div class="stat-value">${pBB}</div></div>
+        <div class="stat-cell"><div class="stat-label">被全壘打</div><div class="stat-value">${pHR}</div></div>
+        <div class="stat-cell"><div class="stat-label">投球數</div><div class="stat-value">${pitches}</div></div>
+      </div>
+    `;
+  }
+
+  const decisions = linescore.decisions || {};
+  let pitcherInfo = '';
+  if (decisions.winner) pitcherInfo += `<tr><td>勝投</td><td>${decisions.winner.fullName}</td></tr>`;
+  if (decisions.loser) pitcherInfo += `<tr><td>敗投</td><td>${decisions.loser.fullName}</td></tr>`;
+  if (decisions.save) pitcherInfo += `<tr><td>救援</td><td>${decisions.save.fullName}</td></tr>`;
+
+  const position = ohtani.position?.abbreviation || 'DH';
+  const positionZh = position === 'DH' ? '指定打擊' : position === 'P' ? '投手' : position;
+
+  let highlights = [];
+  if (h >= 2) highlights.push(`單場${h}安打`);
+  if (hr > 0) highlights.push(`${hr}支全壘打`);
+  if (doubles > 0) highlights.push(`${doubles}支二壘安打`);
+  if (triples > 0) highlights.push(`${triples}支三壘安打`);
+  if (rbi >= 2) highlights.push(`${rbi}打點`);
+  if (sb > 0) highlights.push(`${sb}次盜壘成功`);
+  const highlightText = highlights.length > 0 ? `本場亮點：${highlights.join('、')}。` : '';
+
+  return `
+    <div class="card">
+      <div class="card-title">最近一場</div>
+      <div class="player-row">
+        <div class="avatar">17</div>
+        <div class="player-info">
+          <div class="player-name">大谷 翔平</div>
+          <div class="player-pos">${positionZh} · 道奇隊</div>
+        </div>
+        <span class="badge ${won ? 'badge-win' : 'badge-loss'}">${won ? '勝' : '敗'}</span>
+      </div>
+      <div class="score-box">
+        <div class="score-row">
+          <div><span style="color:var(--text-secondary);">道奇</span> <span class="score-num">${dodgersScore}</span></div>
+          <span class="score-vs">VS</span>
+          <div><span class="score-num">${opponentScore}</span> <span style="color:var(--text-secondary);">${opponentNameZh}</span></div>
+        </div>
+        <div class="score-date">${dateStr} · ${venueText}</div>
+      </div>
+      <div class="section-label">打擊表現</div>
+      <div class="stats-grid">
+        <div class="stat-cell"><div class="stat-label">打數</div><div class="stat-value">${ab}</div></div>
+        <div class="stat-cell"><div class="stat-label">安打</div><div class="stat-value ${h>=2?'highlight':''}">${h}</div></div>
+        <div class="stat-cell"><div class="stat-label">全壘打</div><div class="stat-value ${hr>0?'highlight':''}">${hr}</div></div>
+        <div class="stat-cell"><div class="stat-label">打點</div><div class="stat-value">${rbi}</div></div>
+        <div class="stat-cell"><div class="stat-label">得分</div><div class="stat-value">${r}</div></div>
+        <div class="stat-cell"><div class="stat-label">三振</div><div class="stat-value">${k}</div></div>
+        <div class="stat-cell"><div class="stat-label">四壞</div><div class="stat-value">${bb}</div></div>
+        <div class="stat-cell"><div class="stat-label">打擊率</div><div class="stat-value">${avg}</div></div>
+      </div>
+      ${pitchingHtml}
+      ${pitcherInfo ? `
+        <div class="section-label">本場勝敗投手</div>
+        <table class="pitcher-table">${pitcherInfo}</table>
+      ` : ''}
+      ${highlightText ? `<div class="highlight-box">${highlightText}</div>` : ''}
+      ${!pitchingHtml ? `<div class="note">⚠️ 大谷本場以${positionZh}身分出賽，未登板投球。</div>` : ''}
+    </div>
+  `;
+}
+
+function renderSeasonStats(stats) {
+  let hittingStat = null;
+  let pitchingStat = null;
+
+  if (stats.stats) {
+    for (const group of stats.stats) {
+      if (group.group?.displayName === 'hitting' && group.splits?.length > 0) {
+        hittingStat = group.splits[0].stat;
+      } else if (group.group?.displayName === 'pitching' && group.splits?.length > 0) {
+        pitchingStat = group.splits[0].stat;
+      }
+    }
+  }
+
+  if (!hittingStat && !pitchingStat) return '';
+
+  let html = `<div class="card"><div class="card-title">${SEASON} 本季累計</div>`;
+
+  if (hittingStat) {
+    const games = hittingStat.gamesPlayed ?? 0;
+    const ab = hittingStat.atBats ?? 0;
+    const h = hittingStat.hits ?? 0;
+    const hr = hittingStat.homeRuns ?? 0;
+    const rbi = hittingStat.rbi ?? 0;
+    const r = hittingStat.runs ?? 0;
+    const sb = hittingStat.stolenBases ?? 0;
+    const k = hittingStat.strikeOuts ?? 0;
+    const bb = hittingStat.baseOnBalls ?? 0;
+    const avg = hittingStat.avg ?? '.000';
+    const obp = hittingStat.obp ?? '.000';
+    const slg = hittingStat.slg ?? '.000';
+    const ops = hittingStat.ops ?? '.000';
+
+    html += `
+      <div class="section-label">打擊（${games} 場出賽）</div>
+      <div class="stats-grid">
+        <div class="stat-cell"><div class="stat-label">打擊率</div><div class="stat-value highlight">${avg}</div></div>
+        <div class="stat-cell"><div class="stat-label">上壘率</div><div class="stat-value">${obp}</div></div>
+        <div class="stat-cell"><div class="stat-label">長打率</div><div class="stat-value">${slg}</div></div>
+        <div class="stat-cell"><div class="stat-label">OPS</div><div class="stat-value highlight">${ops}</div></div>
+        <div class="stat-cell"><div class="stat-label">安打</div><div class="stat-value">${h}</div></div>
+        <div class="stat-cell"><div class="stat-label">全壘打</div><div class="stat-value highlight">${hr}</div></div>
+        <div class="stat-cell"><div class="stat-label">打點</div><div class="stat-value">${rbi}</div></div>
+        <div class="stat-cell"><div class="stat-label">得分</div><div class="stat-value">${r}</div></div>
+        <div class="stat-cell"><div class="stat-label">盜壘</div><div class="stat-value">${sb}</div></div>
+        <div class="stat-cell"><div class="stat-label">三振</div><div class="stat-value">${k}</div></div>
+        <div class="stat-cell"><div class="stat-label">四壞</div><div class="stat-value">${bb}</div></div>
+        <div class="stat-cell"><div class="stat-label">打數</div><div class="stat-value">${ab}</div></div>
+      </div>
+    `;
+  }
+
+  if (pitchingStat) {
+    const games = pitchingStat.gamesPlayed ?? 0;
+    const wins = pitchingStat.wins ?? 0;
+    const losses = pitchingStat.losses ?? 0;
+    const era = pitchingStat.era ?? '0.00';
+    const ip = pitchingStat.inningsPitched ?? '0';
+    const k = pitchingStat.strikeOuts ?? 0;
+    const bb = pitchingStat.baseOnBalls ?? 0;
+    const whip = pitchingStat.whip ?? '0.00';
+
+    html += `
+      <div class="section-label" style="margin-top: 14px;">投球（${games} 場登板）</div>
+      <div class="stats-grid">
+        <div class="stat-cell"><div class="stat-label">勝-敗</div><div class="stat-value">${wins}-${losses}</div></div>
+        <div class="stat-cell"><div class="stat-label">防禦率</div><div class="stat-value highlight">${era}</div></div>
+        <div class="stat-cell"><div class="stat-label">局數</div><div class="stat-value">${ip}</div></div>
+        <div class="stat-cell"><div class="stat-label">WHIP</div><div class="stat-value">${whip}</div></div>
+        <div class="stat-cell"><div class="stat-label">三振</div><div class="stat-value highlight">${k}</div></div>
+        <div class="stat-cell"><div class="stat-label">四壞</div><div class="stat-value">${bb}</div></div>
+      </div>
+    `;
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function translateTeam(name) {
+  const map = {
+    'Los Angeles Dodgers': '道奇',
+    'San Diego Padres': '教士',
+    'San Francisco Giants': '巨人',
+    'Arizona Diamondbacks': '響尾蛇',
+    'Colorado Rockies': '落磯',
+    'Chicago Cubs': '小熊',
+    'Miami Marlins': '馬林魚',
+    'St. Louis Cardinals': '紅雀',
+    'Houston Astros': '太空人',
+    'New York Yankees': '洋基',
+    'New York Mets': '大都會',
+    'Boston Red Sox': '紅襪',
+    'Atlanta Braves': '勇士',
+    'Philadelphia Phillies': '費城人',
+    'Washington Nationals': '國民',
+    'Pittsburgh Pirates': '海盜',
+    'Cincinnati Reds': '紅人',
+    'Milwaukee Brewers': '釀酒人',
+    'Toronto Blue Jays': '藍鳥',
+    'Tampa Bay Rays': '光芒',
+    'Baltimore Orioles': '金鶯',
+    'Detroit Tigers': '老虎',
+    'Cleveland Guardians': '守護者',
+    'Chicago White Sox': '白襪',
+    'Kansas City Royals': '皇家',
+    'Minnesota Twins': '雙城',
+    'Seattle Mariners': '水手',
+    'Los Angeles Angels': '天使',
+    'Oakland Athletics': '運動家',
+    'Athletics': '運動家',
+    'Texas Rangers': '遊騎兵'
+  };
+  return map[name] || name;
+}
+
+// 當 App 從背景回到前景時，重新載入（確保 30 秒以上沒看時資料是最新的）
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && currentLiveGamePk) {
+    refreshLiveGame(currentLiveGamePk);
+  }
+});
+
+loadAll();
+</script>
+</body>
+</html>

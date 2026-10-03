@@ -64,6 +64,22 @@
     padding: 4px 4px 0;
   }
   .header h1 { font-size: 18px; font-weight: 600; }
+  .header-btns { display: flex; gap: 8px; align-items: center; }
+  .notif-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    line-height: 1;
+    font-family: inherit;
+  }
+  .notif-btn.active {
+    background: var(--info-bg);
+    border-color: var(--accent);
+  }
   .refresh-btn {
     background: none;
     border: 1px solid var(--border);
@@ -555,7 +571,10 @@
 
   <div class="header">
     <h1>大谷翔平 #17</h1>
-    <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">重新整理</button>
+    <div class="header-btns">
+      <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()" title="比賽通知">🔔</button>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">重新整理</button>
+    </div>
   </div>
 
   <div id="content">
@@ -579,16 +598,152 @@ let countdownInterval = null;
 let liveRefreshInterval = null;
 let currentLiveGamePk = null;
 
+// 通知相關狀態
+let notificationsEnabled = false;
+let prevOhtaniState = {
+  initialized: false,
+  gamePk: null,
+  isBatting: false,
+  hits: 0,
+  homeRuns: 0
+};
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
   });
 }
 
+// ── 通知相關函數 ──────────────────────────────
+
+async function toggleNotifications() {
+  // 如果瀏覽器不支援通知
+  if (!('Notification' in window)) {
+    alert('你的瀏覽器不支援通知功能，請使用 Chrome 瀏覽器。');
+    return;
+  }
+
+  if (notificationsEnabled) {
+    // 關閉通知
+    notificationsEnabled = false;
+    updateNotifBtn();
+    return;
+  }
+
+  // 開啟通知：先確認或請求權限
+  if (Notification.permission === 'granted') {
+    notificationsEnabled = true;
+    updateNotifBtn();
+    showTestNotification();
+  } else if (Notification.permission === 'denied') {
+    alert('你已封鎖此網站的通知。\n\n請到 Chrome 設定 → 網站設定 → 通知，允許此網站的通知後再試。');
+  } else {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      notificationsEnabled = true;
+      updateNotifBtn();
+      showTestNotification();
+    } else {
+      alert('未取得通知權限，無法發送通知。');
+    }
+  }
+}
+
+function updateNotifBtn() {
+  const btn = document.getElementById('notifBtn');
+  if (!btn) return;
+  if (notificationsEnabled) {
+    btn.textContent = '🔔';
+    btn.classList.add('active');
+    btn.title = '通知已開啟（點擊關閉）';
+  } else {
+    btn.textContent = '🔕';
+    btn.classList.remove('active');
+    btn.title = '通知已關閉（點擊開啟）';
+  }
+}
+
+function showTestNotification() {
+  sendOhtaniNotification(
+    '✅ 大谷追蹤通知已開啟',
+    '大谷輪到打擊、擊出安打或全壘打時，你會收到通知。'
+  );
+}
+
+function sendOhtaniNotification(title, body) {
+  if (!notificationsEnabled || Notification.permission !== 'granted') return;
+  try {
+    const notif = new Notification(title, {
+      body,
+      icon: 'icon-192.png',
+      badge: 'icon-192.png',
+      vibrate: [200, 100, 200],
+      tag: 'ohtani-live',
+      renotify: true,
+    });
+    setTimeout(() => notif.close(), 10000);
+    // 點通知後把視窗帶到前景
+    notif.onclick = () => { window.focus(); notif.close(); };
+  } catch (err) {
+    console.log('Notification error:', err);
+  }
+}
+
+function checkAndNotify(gamePk, isBatting, hits, homeRuns) {
+  if (!notificationsEnabled) return;
+
+  // 第一次看到這場比賽：初始化，不送通知
+  if (!prevOhtaniState.initialized || prevOhtaniState.gamePk !== gamePk) {
+    prevOhtaniState = {
+      initialized: true,
+      gamePk,
+      isBatting,
+      hits: hits ?? 0,
+      homeRuns: homeRuns ?? 0
+    };
+    return;
+  }
+
+  const prevHits = prevOhtaniState.hits ?? 0;
+  const prevHR = prevOhtaniState.homeRuns ?? 0;
+  const currentHits = hits ?? 0;
+  const currentHR = homeRuns ?? 0;
+
+  // 全壘打（先判斷，比安打更優先）
+  if (currentHR > prevHR) {
+    sendOhtaniNotification(
+      '💥 大谷翔平全壘打！',
+      `本場第 ${currentHR} 支全壘打！`
+    );
+  } else if (currentHits > prevHits) {
+    // 安打（非全壘打）
+    sendOhtaniNotification(
+      '🥎 大谷翔平擊出安打！',
+      `本場第 ${currentHits} 支安打！`
+    );
+  }
+
+  // 輪到大谷打擊（且之前不是他打）
+  if (isBatting && !prevOhtaniState.isBatting) {
+    sendOhtaniNotification(
+      '⭐ 大谷翔平上場打擊！',
+      '大谷現在站上打擊區，準備迎戰！'
+    );
+  }
+
+  // 更新狀態
+  prevOhtaniState.isBatting = isBatting;
+  prevOhtaniState.hits = currentHits;
+  prevOhtaniState.homeRuns = currentHR;
+}
+
+// ──────────────────────────────────────────────
+
 async function loadAll() {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
   if (liveRefreshInterval) { clearInterval(liveRefreshInterval); liveRefreshInterval = null; }
   currentLiveGamePk = null;
+  prevOhtaniState.initialized = false; // 重整時重置通知比較基準
 
   const content = document.getElementById('content');
   const refreshBtn = document.getElementById('refreshBtn');
@@ -605,14 +760,17 @@ async function loadAll() {
     future.setDate(today.getDate() + 14);
 
     const scheduleUrl = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${TEAM_ID}&startDate=${fmt(past)}&endDate=${fmt(future)}&hydrate=team,probablePitcher`;
-    const seasonStatsUrl = `https://statsapi.mlb.com/api/v1/people/${PLAYER_ID}/stats?stats=season&season=${SEASON}&group=hitting,pitching`;
+    const regularStatsUrl = `https://statsapi.mlb.com/api/v1/people/${PLAYER_ID}/stats?stats=season&season=${SEASON}&group=hitting,pitching&gameType=R`;
+    const postseasonStatsUrl = `https://statsapi.mlb.com/api/v1/people/${PLAYER_ID}/stats?stats=season&season=${SEASON}&group=hitting,pitching&gameType=P`;
 
-    const [scheduleRes, statsRes] = await Promise.all([
+    const [scheduleRes, regularStatsRes, postseasonStatsRes] = await Promise.all([
       fetch(scheduleUrl),
-      fetch(seasonStatsUrl)
+      fetch(regularStatsUrl),
+      fetch(postseasonStatsUrl).catch(() => null)
     ]);
     const schedule = await scheduleRes.json();
-    const seasonStats = await statsRes.json();
+    const regularStats = await regularStatsRes.json();
+    const postseasonStats = postseasonStatsRes ? await postseasonStatsRes.json() : null;
 
     let lastFinishedGame = null;
     let nextGame = null;
@@ -673,8 +831,8 @@ async function loadAll() {
       html += await renderRecentHistory(historyGames);
     }
 
-    // 3. 本季累計
-    html += renderSeasonStats(seasonStats);
+    // 3. 本季累計（季後賽優先，例行賽次之）
+    html += renderSeasonStats(regularStats, postseasonStats);
 
     content.innerHTML = html;
 
@@ -908,6 +1066,9 @@ async function renderLiveGame(game) {
   const k = batting.strikeOuts ?? 0;
   const bb = batting.baseOnBalls ?? 0;
   const avg = ab > 0 ? (h / ab).toFixed(3).replace(/^0/, '') : '-';
+
+  // 檢查是否需要發送通知
+  checkAndNotify(gamePk, isOhtaniBatting, h, hr);
 
   // 大谷投球（如果他在投）
   let ohtaniPitchingHtml = '';
@@ -1473,12 +1634,11 @@ async function renderHistoryDetail(gamePk) {
   `;
 }
 
-function renderSeasonStats(stats) {
+function extractStats(statsData) {
   let hittingStat = null;
   let pitchingStat = null;
-
-  if (stats.stats) {
-    for (const group of stats.stats) {
+  if (statsData?.stats) {
+    for (const group of statsData.stats) {
       if (group.group?.displayName === 'hitting' && group.splits?.length > 0) {
         hittingStat = group.splits[0].stat;
       } else if (group.group?.displayName === 'pitching' && group.splits?.length > 0) {
@@ -1486,13 +1646,18 @@ function renderSeasonStats(stats) {
       }
     }
   }
+  return { hittingStat, pitchingStat };
+}
 
-  if (!hittingStat && !pitchingStat) return '';
-
-  let html = `<div class="card"><div class="card-title">${SEASON} 本季累計</div>`;
+function renderStatsBlock(hittingStat, pitchingStat, labelPrefix, isFirst) {
+  let html = '';
+  const marginTop = isFirst ? '' : 'margin-top: 18px;';
+  const dividerHtml = isFirst ? '' : `<div style="border-top: 0.5px solid var(--border); ${marginTop} padding-top: 16px;">`;
+  const closeDivider = isFirst ? '' : '</div>';
 
   if (hittingStat) {
     const games = hittingStat.gamesPlayed ?? 0;
+    if (games === 0) return '';
     const ab = hittingStat.atBats ?? 0;
     const h = hittingStat.hits ?? 0;
     const hr = hittingStat.homeRuns ?? 0;
@@ -1505,9 +1670,9 @@ function renderSeasonStats(stats) {
     const obp = hittingStat.obp ?? '.000';
     const slg = hittingStat.slg ?? '.000';
     const ops = hittingStat.ops ?? '.000';
-
     html += `
-      <div class="section-label">打擊（${games} 場出賽）</div>
+      ${dividerHtml}
+      <div class="section-label">⚾ ${labelPrefix} 打擊（${games} 場）</div>
       <div class="stats-grid">
         <div class="stat-cell"><div class="stat-label">打擊率</div><div class="stat-value highlight">${avg}</div></div>
         <div class="stat-cell"><div class="stat-label">上壘率</div><div class="stat-value">${obp}</div></div>
@@ -1522,11 +1687,13 @@ function renderSeasonStats(stats) {
         <div class="stat-cell"><div class="stat-label">四壞</div><div class="stat-value">${bb}</div></div>
         <div class="stat-cell"><div class="stat-label">打數</div><div class="stat-value">${ab}</div></div>
       </div>
+      ${closeDivider}
     `;
   }
 
   if (pitchingStat) {
     const games = pitchingStat.gamesPlayed ?? 0;
+    if (games === 0) return html;
     const wins = pitchingStat.wins ?? 0;
     const losses = pitchingStat.losses ?? 0;
     const era = pitchingStat.era ?? '0.00';
@@ -1534,9 +1701,8 @@ function renderSeasonStats(stats) {
     const k = pitchingStat.strikeOuts ?? 0;
     const bb = pitchingStat.baseOnBalls ?? 0;
     const whip = pitchingStat.whip ?? '0.00';
-
     html += `
-      <div class="section-label" style="margin-top: 14px;">投球（${games} 場登板）</div>
+      <div class="section-label" style="margin-top: 14px;">🔥 ${labelPrefix} 投球（${games} 場）</div>
       <div class="stats-grid">
         <div class="stat-cell"><div class="stat-label">勝-敗</div><div class="stat-value">${wins}-${losses}</div></div>
         <div class="stat-cell"><div class="stat-label">防禦率</div><div class="stat-value highlight">${era}</div></div>
@@ -1546,6 +1712,29 @@ function renderSeasonStats(stats) {
         <div class="stat-cell"><div class="stat-label">四壞</div><div class="stat-value">${bb}</div></div>
       </div>
     `;
+  }
+  return html;
+}
+
+function renderSeasonStats(regularStatsData, postseasonStatsData) {
+  const { hittingStat: psHitting, pitchingStat: psPitching } = extractStats(postseasonStatsData);
+  const { hittingStat: regHitting, pitchingStat: regPitching } = extractStats(regularStatsData);
+
+  const hasPostseason = (psHitting?.gamesPlayed ?? 0) > 0 || (psPitching?.gamesPlayed ?? 0) > 0;
+  const hasRegular = (regHitting?.gamesPlayed ?? 0) > 0 || (regPitching?.gamesPlayed ?? 0) > 0;
+
+  if (!hasPostseason && !hasRegular) return '';
+
+  const title = hasPostseason ? `${SEASON} 季後賽 + 例行賽` : `${SEASON} 例行賽累計`;
+
+  let html = `<div class="card"><div class="card-title">${title}</div>`;
+
+  if (hasPostseason) {
+    html += renderStatsBlock(psHitting, psPitching, '季後賽', true);
+  }
+
+  if (hasRegular) {
+    html += renderStatsBlock(regHitting, regPitching, '例行賽', !hasPostseason);
   }
 
   html += '</div>';

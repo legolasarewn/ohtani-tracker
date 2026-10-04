@@ -3,590 +3,360 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#1E40AF">
+<meta name="theme-color" content="#005A9C">
 <title>大谷翔平比賽追蹤</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
+:root {
+  --bg: #EEF2F6;
+  --card-bg: #FFFFFF;
+  --text: #14202B;
+  --text-secondary: #566574;
+  --text-tertiary: #8896A3;
+  --border: rgba(20,32,43,0.10);
+  --border-strong: rgba(20,32,43,0.28);
+  --blue: #005A9C;
+  --accent: #005A9C;
+  --accent-text: #005A9C;
+  --info-bg: #E3EEF8;
+  --info-text: #0B3F6B;
+  --success-bg: #E1F3EA;
+  --success-text: #1E7F4F;
+  --danger-bg: #FCE9E8;
+  --danger-text: #C2312D;
+  --warning-bg: #FBF0D9;
+  --warning-text: #9A6410;
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #f5f5f4;
-    --card-bg: #ffffff;
-    --text: #1c1c1c;
-    --text-secondary: #6b6b6b;
-    --text-tertiary: #9a9a9a;
-    --border: rgba(0,0,0,0.08);
-    --accent: #1E40AF;
-    --success-bg: #d1fae5;
-    --success-text: #065f46;
-    --info-bg: #dbeafe;
-    --info-text: #1e40af;
-    --danger-bg: #fee2e2;
-    --danger-text: #991b1b;
-    --warning-bg: #fef3c7;
-    --warning-text: #92400e;
-    --countdown-bg: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-    --live-bg: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+    --bg: #0F1114;
+    --card-bg: #1A1D21;
+    --text: #F1F3F5;
+    --text-secondary: #A2ACB6;
+    --text-tertiary: #6C7681;
+    --border: rgba(255,255,255,0.10);
+    --border-strong: rgba(255,255,255,0.28);
+    --accent-text: #6DB5EB;
+    --info-bg: #12324F;
+    --info-text: #9CCBF2;
+    --success-bg: #16382A;
+    --success-text: #5CC796;
+    --danger-bg: #4A1F1E;
+    --danger-text: #F26B66;
+    --warning-bg: #43330F;
+    --warning-text: #E6B04A;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0f0f0f;
-      --card-bg: #1c1c1c;
-      --text: #f5f5f4;
-      --text-secondary: #a8a8a8;
-      --text-tertiary: #6b6b6b;
-      --border: rgba(255,255,255,0.1);
-      --success-bg: #064e3b;
-      --success-text: #6ee7b7;
-      --info-bg: #1e3a8a;
-      --info-text: #93c5fd;
-      --danger-bg: #7f1d1d;
-      --danger-text: #fca5a5;
-      --warning-bg: #78350f;
-      --warning-text: #fcd34d;
-    }
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-    min-height: 100vh;
-  }
-  .container { max-width: 480px; margin: 0 auto; padding: 16px; }
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    padding: 4px 4px 0;
-  }
-  .header h1 { font-size: 18px; font-weight: 600; }
-  .header-btns { display: flex; gap: 8px; align-items: center; }
-  .notif-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 10px;
-    border-radius: 8px;
-    font-size: 15px;
-    cursor: pointer;
-    line-height: 1;
-    font-family: inherit;
-  }
-  .notif-btn.active {
-    background: var(--info-bg);
-    border-color: var(--accent);
-  }
-  .refresh-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .refresh-btn:active { transform: scale(0.97); }
-  .refresh-btn:disabled { opacity: 0.5; }
-  .card {
-    background: var(--card-bg);
-    border-radius: 16px;
-    border: 0.5px solid var(--border);
-    padding: 20px;
-    margin-bottom: 12px;
-  }
-  .card-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 14px;
-    color: var(--text);
-  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  font-variant-numeric: tabular-nums;
+}
+button { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+.app { max-width: 480px; margin: 0 auto; }
 
-  /* === 即時比分卡片 === */
-  .live-card {
-    background: var(--live-bg);
-    color: white;
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    border: none;
-  }
-  .live-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .live-tag {
-    background: white;
-    color: #DC2626;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.65; }
-  }
-  .inning-info {
-    font-size: 14px;
-    opacity: 0.95;
-  }
-  .live-score-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .team-block { flex: 1; }
-  .team-name { font-size: 13px; opacity: 0.9; margin-bottom: 4px; }
-  .team-score {
-    font-size: 48px;
-    font-weight: 700;
-    line-height: 1;
-  }
-  .team-block.right { text-align: right; }
-  .vs-divider {
-    font-size: 14px;
-    opacity: 0.6;
-    margin: 0 12px;
-  }
-  .live-status {
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-  .field-diamond {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-  }
-  .base {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    background: rgba(255,255,255,0.3);
-    border: 1.5px solid rgba(255,255,255,0.6);
-    transform: rotate(45deg);
-  }
-  .base.occupied {
-    background: #FCD34D;
-    border-color: #FBBF24;
-  }
-  .base.first { right: 4px; top: 50%; transform: translateY(-50%) rotate(45deg); }
-  .base.second { left: 50%; top: 4px; transform: translateX(-50%) rotate(45deg); }
-  .base.third { left: 4px; top: 50%; transform: translateY(-50%) rotate(45deg); }
-  .count-info { flex: 1; }
-  .count-row {
-    display: flex;
-    gap: 10px;
-    font-size: 13px;
-    margin-bottom: 6px;
-  }
-  .count-label { opacity: 0.8; }
-  .count-value { font-weight: 600; }
-  .outs-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-  }
-  .out-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.25);
-    border: 1.5px solid rgba(255,255,255,0.5);
-  }
-  .out-dot.active {
-    background: white;
-    border-color: white;
-  }
-  .live-batter {
-    background: rgba(0,0,0,0.18);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-  .batter-label { opacity: 0.85; margin-bottom: 4px; font-size: 12px; }
-  .ohtani-live-stats {
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-top: 10px;
-  }
-  .plate-appearances {
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-top: 10px;
-  }
-  .pa-title {
-    font-size: 12px;
-    opacity: 0.9;
-    margin-bottom: 8px;
-  }
-  .pa-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 0;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-  }
-  .pa-row:last-child { border-bottom: none; }
-  .pa-num {
-    flex-shrink: 0;
-    background: rgba(255,255,255,0.25);
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .pa-result { flex: 1; }
-  .pa-detail { opacity: 0.85; font-size: 12px; }
-  .pa-result-hit { color: #FCD34D; font-weight: 600; }
-  .pa-result-hr { color: #FBBF24; font-weight: 700; }
-  .pa-result-out { opacity: 0.75; }
-  .pa-result-walk { color: #93C5FD; font-weight: 500; }
-  .ohtani-live-title {
-    font-size: 12px;
-    opacity: 0.9;
-    margin-bottom: 8px;
-  }
-  .ohtani-live-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-  .live-stat-cell {
-    text-align: center;
-  }
-  .live-stat-num {
-    font-size: 18px;
-    font-weight: 700;
-  }
-  .live-stat-lbl {
-    font-size: 10px;
-    opacity: 0.85;
-    margin-top: 2px;
-  }
+.hero {
+  background: var(--blue);
+  color: #fff;
+  padding: calc(14px + env(safe-area-inset-top)) 18px 18px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-mark {
+  position: absolute; right: 6px; top: -6px;
+  font-size: 104px; font-weight: 600; line-height: 1;
+  color: #0F68AB; pointer-events: none; user-select: none;
+}
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; }
+.hero-name { font-size: 18px; font-weight: 600; }
+.hero-sub { font-size: 12px; color: #CFE3F4; margin-top: 2px; }
+.hero-btns { display: flex; gap: 8px; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.12);
+  color: #fff; cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-btn svg { width: 19px; height: 19px; }
+.icon-btn.active { background: #fff; color: var(--blue); border-color: #fff; }
+.icon-btn:active { transform: scale(0.95); }
+.icon-btn:disabled { opacity: 0.5; }
+.hero-stats { display: flex; gap: 26px; margin-top: 16px; position: relative; }
+.hero-stat-label { font-size: 11px; color: #CFE3F4; }
+.hero-stat-num { font-size: 32px; font-weight: 600; line-height: 1.15; }
 
-  /* === 下一場比賽卡片 === */
-  .next-game-card {
-    background: var(--countdown-bg);
-    color: white;
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    border: none;
-  }
-  .next-game-label {
-    font-size: 12px;
-    opacity: 0.85;
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
-  }
-  .next-game-matchup {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-  .countdown-row {
-    display: flex;
-    gap: 12px;
-    margin-top: 12px;
-  }
-  .countdown-cell {
-    flex: 1;
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 10px 4px;
-    text-align: center;
-  }
-  .countdown-num {
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 1.1;
-  }
-  .countdown-unit {
-    font-size: 11px;
-    opacity: 0.85;
-    margin-top: 2px;
-  }
-  .next-game-time {
-    font-size: 12px;
-    opacity: 0.85;
-    margin-top: 12px;
-  }
-  .pitcher-matchup {
-    display: flex;
-    align-items: stretch;
-    gap: 8px;
-    margin-top: 14px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 10px 12px;
-  }
-  .pitcher-side {
-    flex: 1;
-    min-width: 0;
-  }
-  .pitcher-side.right { text-align: right; }
-  .pitcher-team {
-    font-size: 11px;
-    opacity: 0.75;
-    margin-bottom: 3px;
-  }
-  .pitcher-name {
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.3;
-    word-break: break-word;
-  }
-  .pitcher-record {
-    font-size: 11px;
-    opacity: 0.8;
-    margin-top: 2px;
-  }
-  .pitcher-vs {
-    display: flex;
-    align-items: center;
-    font-size: 11px;
-    opacity: 0.7;
-    padding: 0 4px;
-  }
+.panel { display: none; padding: 14px 14px 4px; }
+.panel.active { display: block; }
+.card {
+  background: var(--card-bg);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.card-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.panel-title { font-size: 15px; font-weight: 600; margin: 2px 2px 2px; }
+.panel-sub { font-size: 12px; color: var(--text-secondary); margin: 0 2px 12px; }
+.chip {
+  display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px;
+  background: var(--info-bg); color: var(--info-text); margin-left: 6px; font-weight: 500;
+}
+.chip-live { background: var(--danger-bg); color: var(--danger-text); }
 
-  /* === 玩家卡片 === */
-  .player-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 16px;
-  }
-  .player-info { flex: 1; }
-  .player-name { font-weight: 600; font-size: 16px; }
-  .player-pos { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-  .badge { font-size: 12px; padding: 4px 10px; border-radius: 8px; font-weight: 500; }
-  .badge-win { background: var(--success-bg); color: var(--success-text); }
-  .badge-loss { background: var(--danger-bg); color: var(--danger-text); }
-  .score-box {
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    font-size: 13px;
-  }
-  .score-row { display: flex; justify-content: space-between; align-items: center; }
-  .score-num { font-weight: 600; font-size: 18px; }
-  .score-vs { color: var(--text-tertiary); font-size: 12px; }
-  .score-date { font-size: 12px; color: var(--text-tertiary); margin-top: 6px; text-align: center; }
-  .section-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 10px;
-    margin-top: 4px;
-  }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 18px;
-  }
-  .stats-grid:last-child { margin-bottom: 0; }
-  .stat-cell {
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 10px 4px;
-    text-align: center;
-  }
-  .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
-  .stat-value { font-size: 20px; font-weight: 600; }
-  .stat-value.highlight { color: var(--success-text); }
-  .pitcher-table { width: 100%; font-size: 13px; border-collapse: collapse; }
-  .pitcher-table td { padding: 6px 0; border-bottom: 0.5px solid var(--border); }
-  .pitcher-table tr:last-child td { border-bottom: none; }
-  .pitcher-table td:first-child { color: var(--text-secondary); }
-  .pitcher-table td:last-child { text-align: right; }
-  .highlight-box {
-    background: var(--info-bg);
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-top: 14px;
-    font-size: 12px;
-    color: var(--info-text);
-    line-height: 1.6;
-  }
-  .note { font-size: 12px; color: var(--text-tertiary); margin-top: 12px; }
-  .loading, .error {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-secondary);
-    font-size: 14px;
-  }
-  .error { color: var(--danger-text); }
-  .spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .updated {
-    text-align: center;
-    font-size: 11px;
-    color: var(--text-tertiary);
-    margin: 8px 0 16px;
-  }
-  .auto-refresh-indicator {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: #10b981;
-    border-radius: 50%;
-    margin-right: 4px;
-    animation: pulse 2s ease-in-out infinite;
-  }
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  background: var(--card-bg); border-top: 0.5px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tabbar-inner { max-width: 480px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+.tab {
+  background: none; border: none; color: var(--text-secondary); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 9px 0 8px; font-size: 11px;
+}
+.tab svg { width: 22px; height: 22px; }
+.tab.active { color: var(--accent-text); font-weight: 600; }
 
-  /* === 歷史比賽列表 === */
-  .history-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 0;
-    border-bottom: 0.5px solid var(--border);
-    font-size: 13px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .history-row:active { opacity: 0.6; }
-  .history-row:last-child { border-bottom: none; }
-  .history-arrow {
-    flex-shrink: 0;
-    width: 16px;
-    color: var(--text-tertiary);
-    font-size: 11px;
-    transition: transform 0.2s;
-    text-align: center;
-  }
-  .history-arrow.open { transform: rotate(180deg); }
-  .history-detail {
-    padding: 10px 0 14px;
-    border-bottom: 0.5px solid var(--border);
-    display: none;
-  }
-  .history-detail.open { display: block; }
-  .history-detail-card {
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 14px;
-  }
-  .history-detail .section-label {
-    margin-top: 12px;
-  }
-  .history-detail .section-label:first-child {
-    margin-top: 0;
-  }
-  .history-loading {
-    text-align: center;
-    padding: 16px;
-    color: var(--text-tertiary);
-    font-size: 12px;
-  }
-  .history-date {
-    flex-shrink: 0;
-    width: 56px;
-    color: var(--text-secondary);
-    font-size: 12px;
-  }
-  .history-matchup {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .history-result {
-    flex-shrink: 0;
-    width: 64px;
-    text-align: right;
-    font-weight: 500;
-  }
-  .history-result.win { color: var(--success-text); }
-  .history-result.loss { color: var(--danger-text); }
-  .history-stats {
-    flex-shrink: 0;
-    color: var(--text-secondary);
-    font-size: 12px;
-    min-width: 60px;
-    text-align: right;
-  }
-  .history-stats.highlight {
-    color: var(--success-text);
-    font-weight: 500;
-  }
-  .history-dnp {
-    color: var(--text-tertiary);
-    font-style: italic;
-    font-size: 11px;
-  }
+.live-card {
+  background: var(--card-bg); border: 0.5px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-bottom: 12px;
+}
+.live-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.live-tag {
+  background: var(--danger-bg); color: var(--danger-text);
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.inning-info { font-size: 13px; color: var(--text-secondary); }
+.live-score-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.team-name { font-size: 13px; color: var(--text-secondary); }
+.team-score { font-size: 44px; font-weight: 600; line-height: 1.1; }
+.team-block.right { text-align: right; }
+.diamond { width: 64px; height: 64px; }
+.diamond .base { fill: var(--bg); stroke: var(--border-strong); stroke-width: 1; }
+.diamond .base.on { fill: var(--blue); stroke: var(--blue); }
+.bso {
+  display: flex; justify-content: space-between;
+  margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--border);
+  font-size: 13px; align-items: center;
+}
+.bso-group { display: flex; align-items: center; gap: 4px; }
+.bso-label { color: var(--text-secondary); margin-right: 4px; }
+.lamp { width: 11px; height: 11px; border-radius: 50%; background: var(--border-strong); display: inline-block; }
+.lamp.b.on { background: var(--success-text); }
+.lamp.s.on { background: var(--warning-text); }
+.lamp.o.on { background: var(--danger-text); }
+.people { margin-top: 12px; font-size: 13px; line-height: 1.9; }
+.people-label { display: inline-block; width: 48px; color: var(--text-secondary); }
+.ohtani-box { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
+.ohtani-head { display: flex; align-items: center; font-size: 15px; font-weight: 600; }
+.ohtani-line { font-size: 21px; font-weight: 600; margin: 8px 0 2px; }
+.ohtani-live-stats { background: var(--bg); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+.ohtani-live-title { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+.ohtani-live-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 4px; }
+.live-stat-cell { text-align: center; }
+.live-stat-num { font-size: 17px; font-weight: 600; }
+.live-stat-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+.timeline { margin: 14px 0 2px 5px; padding-left: 16px; border-left: 1px solid var(--border-strong); }
+.tl-title { font-size: 12px; color: var(--text-secondary); margin: 14px 0 0; }
+.tl-item { position: relative; display: flex; gap: 10px; align-items: baseline; padding: 4px 0 10px; font-size: 13px; }
+.tl-item::before {
+  content: ""; position: absolute; left: -21px; top: 10px;
+  width: 9px; height: 9px; border-radius: 50%; background: var(--border-strong);
+}
+.tl-item.pa-result-hit::before, .tl-item.pa-result-walk::before { background: var(--blue); }
+.tl-item.pa-result-hr::before { background: var(--warning-text); }
+.tl-when { width: 44px; color: var(--text-secondary); flex-shrink: 0; }
+.tl-what { color: var(--text-secondary); }
+.tl-item.pa-result-hit .tl-what, .tl-item.pa-result-walk .tl-what { color: var(--accent-text); font-weight: 500; }
+.tl-item.pa-result-hr .tl-what { color: var(--warning-text); font-weight: 600; }
+.tl-rbi { font-size: 12px; color: var(--text-secondary); }
+
+.next-game-card {
+  background: var(--card-bg); border: 0.5px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-bottom: 12px;
+}
+.next-game-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.next-game-matchup { font-size: 19px; font-weight: 600; }
+.countdown-row { display: flex; gap: 8px; margin-top: 12px; }
+.countdown-cell { flex: 1; background: var(--info-bg); border-radius: 10px; padding: 10px 4px; text-align: center; }
+.countdown-num { font-size: 26px; font-weight: 600; line-height: 1.1; color: var(--info-text); }
+.countdown-unit { font-size: 11px; color: var(--info-text); margin-top: 2px; }
+.next-game-time { font-size: 12px; color: var(--text-secondary); margin-top: 10px; }
+.pitcher-matchup { display: flex; gap: 8px; margin-top: 12px; background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+.pitcher-side { flex: 1; min-width: 0; }
+.pitcher-side.right { text-align: right; }
+.pitcher-team { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
+.pitcher-name { font-size: 13px; font-weight: 600; line-height: 1.3; word-break: break-word; }
+.pitcher-record { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.pitcher-vs { display: flex; align-items: center; font-size: 11px; color: var(--text-tertiary); }
+
+.player-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.avatar {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--blue); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;
+}
+.player-info { flex: 1; }
+.player-name { font-weight: 600; font-size: 16px; }
+.player-pos { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.badge { font-size: 12px; padding: 4px 10px; border-radius: 8px; font-weight: 500; }
+.badge-win { background: var(--success-bg); color: var(--success-text); }
+.badge-loss { background: var(--danger-bg); color: var(--danger-text); }
+.score-box { background: var(--bg); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; }
+.score-row { display: flex; justify-content: space-between; align-items: center; }
+.score-num { font-weight: 600; font-size: 20px; }
+.score-vs { color: var(--text-tertiary); font-size: 12px; }
+.score-date { font-size: 12px; color: var(--text-tertiary); margin-top: 6px; text-align: center; }
+.section-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin: 4px 0 10px; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.stats-grid:last-child { margin-bottom: 0; }
+.stat-cell { background: var(--bg); border-radius: 10px; padding: 10px 4px; text-align: center; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 3px; }
+.stat-value { font-size: 19px; font-weight: 600; }
+.stat-value.highlight { color: var(--success-text); }
+.pitcher-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+.pitcher-table td { padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+.pitcher-table tr:last-child td { border-bottom: none; }
+.pitcher-table td:first-child { color: var(--text-secondary); }
+.pitcher-table td:last-child { text-align: right; }
+.highlight-box { background: var(--info-bg); border-radius: 10px; padding: 10px 14px; margin-top: 14px; font-size: 12px; color: var(--info-text); line-height: 1.6; }
+.note { font-size: 12px; color: var(--text-tertiary); margin-top: 12px; }
+
+.seg-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.seg {
+  flex: 1; padding: 9px; border-radius: 10px; font-size: 14px; cursor: pointer;
+  background: var(--card-bg); color: var(--text-secondary); border: 0.5px solid var(--border-strong);
+}
+.seg.active { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
+.season-view { display: none; }
+.season-view.active { display: block; }
+.metric-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.metric { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.metric-label { font-size: 12px; color: var(--text-secondary); }
+.metric-num { font-size: 32px; font-weight: 600; line-height: 1.2; }
+.bar-block { margin-bottom: 12px; }
+.bar-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.bar { height: 7px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--blue); border-radius: 4px; }
+.kv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; margin: 14px 0 6px; }
+.kv { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 0.5px solid var(--border); font-size: 14px; }
+.kv span:first-child { color: var(--text-secondary); }
+.kv span:last-child { font-weight: 600; }
+.sub-head { font-size: 14px; font-weight: 600; margin: 20px 2px 10px; }
+
+.chart { display: flex; align-items: flex-end; gap: 10px; height: 110px; margin: 4px 0 6px; }
+.chart-col { flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+.chart-val { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+.chart-bar { border-radius: 5px 5px 0 0; background: var(--border-strong); min-height: 4px; }
+.chart-bar.win { background: var(--blue); }
+.chart-date { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; background: var(--border-strong); }
+.legend i.win { background: var(--blue); }
+
+.history-row {
+  display: flex; align-items: center; gap: 10px; padding: 11px 0;
+  border-bottom: 0.5px solid var(--border); font-size: 13px; cursor: pointer; user-select: none;
+}
+.history-row:active { opacity: 0.6; }
+.history-row:last-child { border-bottom: none; }
+.history-date { flex-shrink: 0; width: 40px; color: var(--text-secondary); font-size: 12px; }
+.history-matchup { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-result { flex-shrink: 0; width: 64px; text-align: right; font-weight: 500; }
+.history-result.win { color: var(--success-text); }
+.history-result.loss { color: var(--danger-text); }
+.history-stats { flex-shrink: 0; color: var(--text-secondary); font-size: 12px; min-width: 56px; text-align: right; }
+.history-stats.highlight { color: var(--success-text); font-weight: 600; }
+.history-dnp { color: var(--text-tertiary); font-style: italic; font-size: 11px; }
+.history-arrow { flex-shrink: 0; width: 14px; color: var(--text-tertiary); font-size: 11px; text-align: center; transition: transform 0.2s; }
+.history-arrow.open { transform: rotate(180deg); }
+.history-detail { display: none; padding: 4px 0 14px; border-bottom: 0.5px solid var(--border); }
+.history-detail.open { display: block; }
+.history-detail-card { background: var(--bg); border-radius: 12px; padding: 14px; }
+.history-detail .section-label { margin-top: 12px; }
+.history-detail .section-label:first-child { margin-top: 0; }
+.history-loading { text-align: center; padding: 16px; color: var(--text-tertiary); font-size: 12px; }
+
+.loading, .error { text-align: center; padding: 48px 20px; color: var(--text-secondary); font-size: 14px; }
+.error { color: var(--danger-text); }
+.spinner {
+  display: inline-block; width: 22px; height: 22px; margin-bottom: 12px;
+  border: 2px solid var(--border-strong); border-top-color: var(--blue);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.updated { text-align: center; font-size: 11px; color: var(--text-tertiary); margin: 4px 14px 18px; }
+.auto-refresh-indicator {
+  display: inline-block; width: 8px; height: 8px; background: var(--success-text);
+  border-radius: 50%; margin-right: 5px; animation: pulse 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-tag, .auto-refresh-indicator, .spinner { animation: none; }
+  .history-arrow { transition: none; }
+}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="app">
 
-  <div class="header">
-    <h1>大谷翔平 #17</h1>
-    <div class="header-btns">
-      <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()" title="比賽通知">🔔</button>
-      <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">重新整理</button>
+  <header class="hero">
+    <div class="hero-mark" aria-hidden="true">17</div>
+    <div class="hero-top">
+      <div>
+        <h1 class="hero-name">大谷翔平</h1>
+        <div class="hero-sub" id="heroSub">道奇　背號 17</div>
+      </div>
+      <div class="hero-btns">
+        <button class="icon-btn" id="notifBtn" onclick="toggleNotifications()" aria-label="比賽通知"></button>
+        <button class="icon-btn" id="refreshBtn" onclick="loadAll()" aria-label="重新整理">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-3M4 5v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3M20 19v-4h-4"/></svg>
+        </button>
+      </div>
     </div>
-  </div>
+    <div class="hero-stats" id="heroStats">
+      <div><div class="hero-stat-label">打擊率</div><div class="hero-stat-num">--</div></div>
+      <div><div class="hero-stat-label">OPS</div><div class="hero-stat-num">--</div></div>
+      <div><div class="hero-stat-label">全壘打</div><div class="hero-stat-num">--</div></div>
+    </div>
+  </header>
 
-  <div id="content">
+  <main id="content">
     <div class="loading">
       <div class="spinner"></div>
       <div>正在抓取最新比賽數據...</div>
     </div>
-  </div>
+  </main>
 
   <div class="updated" id="updated"></div>
 
 </div>
+
+<nav class="tabbar" aria-label="主要分頁">
+  <div class="tabbar-inner">
+    <button class="tab" id="tab-today" onclick="showTab('today')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 6.5c2.6 1.6 4 3.3 4 5.5s-1.4 3.9-4 5.5M18.4 6.5c-2.6 1.6-4 3.3-4 5.5s1.4 3.9 4 5.5"/></svg>
+      今日
+    </button>
+    <button class="tab" id="tab-stats" onclick="showTab('stats')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="12" width="4" height="8" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="16" y="9" width="4" height="11" rx="1"/></svg>
+      數據
+    </button>
+    <button class="tab" id="tab-history" onclick="showTab('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4h4"/><path d="M12 8v4.5l3 1.8"/></svg>
+      歷史
+    </button>
+  </div>
+</nav>
 
 <script>
 const PLAYER_ID = 660271;
@@ -649,17 +419,22 @@ async function toggleNotifications() {
   }
 }
 
+const ICON_BELL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
+const ICON_BELL_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="m3 3 18 18"/></svg>';
+
 function updateNotifBtn() {
   const btn = document.getElementById('notifBtn');
   if (!btn) return;
   if (notificationsEnabled) {
-    btn.textContent = '🔔';
+    btn.innerHTML = ICON_BELL;
     btn.classList.add('active');
     btn.title = '通知已開啟（點擊關閉）';
+    btn.setAttribute('aria-label', '通知已開啟，點擊關閉');
   } else {
-    btn.textContent = '🔕';
+    btn.innerHTML = ICON_BELL_OFF;
     btn.classList.remove('active');
     btn.title = '通知已關閉（點擊開啟）';
+    btn.setAttribute('aria-label', '通知已關閉，點擊開啟');
   }
 }
 
@@ -739,11 +514,27 @@ function checkAndNotify(gamePk, isBatting, hits, homeRuns) {
 
 // ──────────────────────────────────────────────
 
+let currentTab = 'today';
+
+function showTab(name) {
+  currentTab = name;
+  ['today', 'stats', 'history'].forEach(t => {
+    const panel = document.getElementById('panel-' + t);
+    if (panel) panel.classList.toggle('active', t === name);
+    const tab = document.getElementById('tab-' + t);
+    if (tab) {
+      tab.classList.toggle('active', t === name);
+      tab.setAttribute('aria-current', t === name ? 'page' : 'false');
+    }
+  });
+  window.scrollTo(0, 0);
+}
+
 async function loadAll() {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
   if (liveRefreshInterval) { clearInterval(liveRefreshInterval); liveRefreshInterval = null; }
   currentLiveGamePk = null;
-  prevOhtaniState.initialized = false; // 重整時重置通知比較基準
+  prevOhtaniState.initialized = false;
 
   const content = document.getElementById('content');
   const refreshBtn = document.getElementById('refreshBtn');
@@ -784,7 +575,6 @@ async function loadAll() {
         const state = game.status.detailedState;
         const coded = game.status.codedGameState;
 
-        // 比賽進行中
         if (coded === 'I' || state === 'In Progress' || state === 'Manager challenge' || state === 'Replay') {
           liveGame = game;
         } else if (state === 'Final' || coded === 'F') {
@@ -800,48 +590,41 @@ async function loadAll() {
       }
     }
 
-    // 由新到舊排序，取前 5 場（除掉「最近一場」就剩 4 場）
     finishedGames.sort((a, b) => new Date(b.gameDate).getTime() - new Date(a.gameDate).getTime());
-    const recentHistoryGames = finishedGames.slice(0, 6); // 多抓一場保險，最多顯示 5 場（第一場是 lastFinishedGame）
+    const historyGames = finishedGames.slice(0, 5);
 
-    let html = '';
-
-    // 1. 即時比賽卡片（最優先）
+    // 今日分頁：即時比賽或下一場，加上最近一場
+    let todayHtml = '';
     if (liveGame) {
-      const liveHtml = await renderLiveGame(liveGame);
-      html += liveHtml;
+      todayHtml += await renderLiveGame(liveGame);
       currentLiveGamePk = liveGame.gamePk;
     } else if (nextGame) {
-      // 沒有即時比賽，才顯示下一場倒數
-      html += await renderNextGame(nextGame);
+      todayHtml += await renderNextGame(nextGame);
     }
-
-    // 2. 最近一場
     if (lastFinishedGame) {
-      html += await renderLastGame(lastFinishedGame);
+      todayHtml += await renderLastGame(lastFinishedGame);
     } else if (!liveGame) {
-      html += '<div class="card"><div class="error" style="padding:20px;">最近 30 天內找不到道奇隊已結束的比賽</div></div>';
+      todayHtml += '<div class="card"><div class="error" style="padding:20px;">最近 30 天內找不到道奇隊已結束的比賽</div></div>';
     }
 
-    // 2.5 最近 5 場歷史（不含最近一場）
-    const historyGames = recentHistoryGames
-      .filter(g => g.gamePk !== lastFinishedGame?.gamePk)
-      .slice(0, 5);
-    if (historyGames.length > 0) {
-      html += await renderRecentHistory(historyGames);
-    }
+    // 數據分頁與歷史分頁
+    const statsHtml = renderSeasonStats(regularStats, postseasonStats);
+    const historyHtml = historyGames.length > 0
+      ? await renderRecentHistory(historyGames)
+      : '<div class="card"><div class="error" style="padding:20px;">最近 30 天沒有已結束的比賽</div></div>';
 
-    // 3. 本季累計（季後賽優先，例行賽次之）
-    html += renderSeasonStats(regularStats, postseasonStats);
-
-    content.innerHTML = html;
+    content.innerHTML = `
+      <section class="panel" id="panel-today">${todayHtml}</section>
+      <section class="panel" id="panel-stats">${statsHtml}</section>
+      <section class="panel" id="panel-history">${historyHtml}</section>
+    `;
+    renderHeroStats(regularStats, postseasonStats);
+    showTab(currentTab);
 
     if (nextGame && !liveGame) {
       startCountdown(nextGame);
     }
-
     if (liveGame) {
-      // 啟動每 30 秒自動更新
       liveRefreshInterval = setInterval(() => refreshLiveGame(currentLiveGamePk), LIVE_REFRESH_MS);
     }
 
@@ -993,7 +776,7 @@ async function renderLiveGame(game) {
 
         vsPitcherHtml = `
           <div class="ohtani-live-stats">
-            <div class="ohtani-live-title">📊 大谷生涯對 ${pitcherName}</div>
+            <div class="ohtani-live-title">生涯對 ${pitcherName}</div>
             <div class="ohtani-live-grid">
               <div class="live-stat-cell"><div class="live-stat-num">${vAVG}</div><div class="live-stat-lbl">打擊率</div></div>
               <div class="live-stat-cell"><div class="live-stat-num">${vAB}</div><div class="live-stat-lbl">打數</div></div>
@@ -1008,7 +791,7 @@ async function renderLiveGame(game) {
       } else {
         vsPitcherHtml = `
           <div class="ohtani-live-stats" style="text-align:center; padding:14px;">
-            <div style="font-size:12px; opacity:0.85;">📊 大谷與 ${pitcherName} 過去無對戰紀錄</div>
+            <div style="font-size:12px; opacity:0.85;">大谷與 ${pitcherName} 過去無對戰紀錄</div>
           </div>
         `;
       }
@@ -1032,30 +815,14 @@ async function renderLiveGame(game) {
   );
 
   if (ohtaniPlays.length > 0) {
-    const paRows = ohtaniPlays.map((play, idx) => {
+    const paItems = ohtaniPlays.map(play => {
       const event = translateEvent(play.result.eventType);
-      const rbi = play.result.rbi ?? 0;
-      const inning = play.about?.inning ?? '?';
-      const halfZh = play.about?.halfInning === 'top' ? '上' : '下';
-      const detailParts = [`${inning}局${halfZh}`];
-      if (rbi > 0) detailParts.push(`RBI ${rbi}`);
-      const detail = detailParts.join(' · ');
-
-      return `
-        <div class="pa-row">
-          <div class="pa-num">${idx + 1}</div>
-          <div class="pa-result ${event.cls}">${event.text}</div>
-          <div class="pa-detail">${detail}</div>
-        </div>
-      `;
+      const rbiPA = play.result.rbi ?? 0;
+      const inningPA = play.about?.inning ?? '?';
+      const halfPA = play.about?.halfInning === 'top' ? '上' : '下';
+      return `<div class="tl-item ${event.cls}"><span class="tl-when">${inningPA}局${halfPA}</span><span class="tl-what">${event.text}</span>${rbiPA > 0 ? `<span class="tl-rbi">RBI ${rbiPA}</span>` : ''}</div>`;
     }).join('');
-
-    plateAppearancesHtml = `
-      <div class="plate-appearances">
-        <div class="pa-title">📋 大谷本場逐打席</div>
-        ${paRows}
-      </div>
-    `;
+    plateAppearancesHtml = `<div class="tl-title">逐打席</div><div class="timeline">${paItems}</div>`;
   }
 
   const ab = batting.atBats ?? 0;
@@ -1080,7 +847,7 @@ async function renderLiveGame(game) {
     const pER = pitching.earnedRuns ?? 0;
     ohtaniPitchingHtml = `
       <div class="ohtani-live-stats">
-        <div class="ohtani-live-title">⚾ 大谷本場投球</div>
+        <div class="ohtani-live-title">本場投球</div>
         <div class="ohtani-live-grid">
           <div class="live-stat-cell"><div class="live-stat-num">${ip}</div><div class="live-stat-lbl">局數</div></div>
           <div class="live-stat-cell"><div class="live-stat-num">${pK}</div><div class="live-stat-lbl">三振</div></div>
@@ -1092,35 +859,56 @@ async function renderLiveGame(game) {
     `;
   }
 
-  const ohtaniBattingHtml = ab > 0 || bb > 0 ? `
-    <div class="ohtani-live-stats">
-      <div class="ohtani-live-title">🥎 大谷本場打擊 ${isOhtaniBatting ? '· 目前打擊中' : ''}</div>
-      <div class="ohtani-live-grid">
-        <div class="live-stat-cell"><div class="live-stat-num">${ab}</div><div class="live-stat-lbl">打數</div></div>
-        <div class="live-stat-cell"><div class="live-stat-num">${h}</div><div class="live-stat-lbl">安打</div></div>
-        <div class="live-stat-cell"><div class="live-stat-num">${hr}</div><div class="live-stat-lbl">全壘打</div></div>
-        <div class="live-stat-cell"><div class="live-stat-num">${rbi}</div><div class="live-stat-lbl">打點</div></div>
-        <div class="live-stat-cell"><div class="live-stat-num">${r}</div><div class="live-stat-lbl">得分</div></div>
-        <div class="live-stat-cell"><div class="live-stat-num">${k}</div><div class="live-stat-lbl">三振</div></div>
-        <div class="live-stat-cell"><div class="live-stat-num">${bb}</div><div class="live-stat-lbl">四壞</div></div>
-        <div class="live-stat-cell"><div class="live-stat-num">${avg}</div><div class="live-stat-lbl">打擊率</div></div>
-      </div>
-    </div>
-  ` : '';
-
   const opponentZh = translateTeam(opponentTeam.name);
   const venueText = isDodgersHome ? '主場' : '客場';
 
-  // 出局數圓點
-  const outDots = [0, 1, 2].map(i =>
-    `<div class="out-dot ${i < outs ? 'active' : ''}"></div>`
-  ).join('');
+  const lamps = (n, total, cls) =>
+    Array.from({ length: total }, (_, i) => `<i class="lamp ${cls}${i < n ? ' on' : ''}"></i>`).join('');
+  const runnersLabel = [onFirst && '一壘', onSecond && '二壘', onThird && '三壘'].filter(Boolean).join('、') || '無人';
+
+  const peopleHtml = (batterName || onDeckName || pitcherName) ? `
+    <div class="people">
+      ${batterName ? `<div><span class="people-label">打擊</span>${batterName}${isOhtaniBatting ? '<span class="chip">大谷</span>' : ''}</div>` : ''}
+      ${onDeckName ? `<div><span class="people-label">下一棒</span>${onDeckName}${isOhtaniOnDeck ? '<span class="chip">大谷</span>' : ''}</div>` : ''}
+      ${pitcherName ? `<div><span class="people-label">投手</span>${pitcherName}${pitchCount !== null ? `　${pitchCount} 球` : ''}</div>` : ''}
+    </div>
+  ` : '';
+
+  const ohtaniHeadline = (ab === 0 && bb === 0)
+    ? '尚未打擊'
+    : `${ab} 打數 ${h} 安打${hr > 0 ? ` ${hr} 全壘打` : ''}${rbi > 0 ? ` ${rbi} 打點` : ''}`;
+
+  const ohtaniStatusChip = isOhtaniBatting
+    ? '<span class="chip chip-live">打擊中</span>'
+    : (isOhtaniOnDeck ? '<span class="chip">下一棒</span>' : '');
+
+  const ohtaniBoxHtml = ohtani ? `
+    <div class="ohtani-box">
+      <div class="ohtani-head">大谷 本場${ohtaniStatusChip}</div>
+      <div class="ohtani-line">${ohtaniHeadline}</div>
+      ${vsPitcherHtml}
+      <div class="ohtani-live-stats">
+        <div class="ohtani-live-grid">
+          <div class="live-stat-cell"><div class="live-stat-num">${ab}</div><div class="live-stat-lbl">打數</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${h}</div><div class="live-stat-lbl">安打</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${hr}</div><div class="live-stat-lbl">全壘打</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${rbi}</div><div class="live-stat-lbl">打點</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${r}</div><div class="live-stat-lbl">得分</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${k}</div><div class="live-stat-lbl">三振</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${bb}</div><div class="live-stat-lbl">四壞</div></div>
+          <div class="live-stat-cell"><div class="live-stat-num">${avg}</div><div class="live-stat-lbl">打擊率</div></div>
+        </div>
+      </div>
+      ${plateAppearancesHtml}
+      ${ohtaniPitchingHtml}
+    </div>
+  ` : '';
 
   return `
     <div class="live-card" id="liveCard">
-      <div class="live-header">
-        <span class="live-tag">● LIVE</span>
-        <span class="inning-info">${inning}局${inningHalfZh}半 · ${venueText}</span>
+      <div class="live-head">
+        <span class="live-tag">LIVE</span>
+        <span class="inning-info">${inning}局${inningHalfZh}半　${venueText}</span>
       </div>
 
       <div class="live-score-row">
@@ -1128,43 +916,26 @@ async function renderLiveGame(game) {
           <div class="team-name">道奇</div>
           <div class="team-score">${dodgersScore}</div>
         </div>
-        <div class="vs-divider">VS</div>
+        <svg class="diamond" viewBox="0 0 60 60" role="img" aria-label="壘上：${runnersLabel}">
+          <rect class="base${onSecond ? ' on' : ''}" width="10" height="10" transform="translate(30 10) rotate(45) translate(-5 -5)"/>
+          <rect class="base${onThird ? ' on' : ''}" width="10" height="10" transform="translate(10 30) rotate(45) translate(-5 -5)"/>
+          <rect class="base${onFirst ? ' on' : ''}" width="10" height="10" transform="translate(50 30) rotate(45) translate(-5 -5)"/>
+          <rect class="base" width="10" height="10" transform="translate(30 50) rotate(45) translate(-5 -5)"/>
+        </svg>
         <div class="team-block right">
           <div class="team-name">${opponentZh}</div>
           <div class="team-score">${opponentScore}</div>
         </div>
       </div>
 
-      <div class="live-status">
-        <div class="field-diamond">
-          <div class="base second ${onSecond ? 'occupied' : ''}"></div>
-          <div class="base third ${onThird ? 'occupied' : ''}"></div>
-          <div class="base first ${onFirst ? 'occupied' : ''}"></div>
-        </div>
-        <div class="count-info">
-          <div class="count-row">
-            <span><span class="count-label">B</span> <span class="count-value">${balls}</span></span>
-            <span><span class="count-label">S</span> <span class="count-value">${strikes}</span></span>
-          </div>
-          <div class="outs-row">
-            <span class="count-label">出局</span>
-            ${outDots}
-          </div>
-        </div>
+      <div class="bso" role="img" aria-label="${balls} 壞球 ${strikes} 好球 ${outs} 出局">
+        <span class="bso-group"><span class="bso-label">B</span>${lamps(balls, 4, 'b')}</span>
+        <span class="bso-group"><span class="bso-label">S</span>${lamps(strikes, 3, 's')}</span>
+        <span class="bso-group"><span class="bso-label">出局</span>${lamps(outs, 3, 'o')}</span>
       </div>
 
-      ${batterName || pitcherName || onDeckName ? `
-        <div class="live-batter">
-          ${batterName ? `<div class="batter-label">打擊：${batterName}${isOhtaniBatting ? ' ⭐' : ''}</div>` : ''}
-          ${onDeckName ? `<div class="batter-label">下一棒：${onDeckName}${isOhtaniOnDeck ? ' ⭐' : ''}</div>` : ''}
-          ${pitcherName ? `<div class="batter-label" style="margin-bottom:0;">投球：${pitcherName}${pitchCount !== null ? ` · ${pitchCount} 球` : ''}</div>` : ''}
-        </div>
-      ` : ''}
-
-      ${vsPitcherHtml}
-      ${ohtaniBattingHtml}
-      ${plateAppearancesHtml}
-      ${ohtaniPitchingHtml}
+      ${peopleHtml}
+      ${ohtaniBoxHtml}
     </div>
   `;
 }
@@ -1411,7 +1182,7 @@ async function renderLastGame(game) {
         <table class="pitcher-table">${pitcherInfo}</table>
       ` : ''}
       ${highlightText ? `<div class="highlight-box">${highlightText}</div>` : ''}
-      ${!pitchingHtml ? `<div class="note">⚠️ 大谷本場以${positionZh}身分出賽，未登板投球。</div>` : ''}
+      ${!pitchingHtml ? `<div class="note">大谷本場以${positionZh}身分出賽，未登板投球。</div>` : ''}
     </div>
   `;
 }
@@ -1426,6 +1197,7 @@ async function renderRecentHistory(games) {
     )
   );
 
+  const chartData = [];
   const rows = games.map((game, idx) => {
     const boxscore = boxscores[idx];
     const gameDate = new Date(game.gameDate);
@@ -1441,6 +1213,7 @@ async function renderRecentHistory(games) {
     const won = dodgersScore > opponentScore;
     const resultText = `${won ? '勝' : '敗'} ${dodgersScore}-${opponentScore}`;
 
+    let chartHits = 0;
     // 大谷該場概要（一行顯示用）
     let statsHtml = '<span class="history-dnp">未出賽</span>';
     let statsHighlight = false;
@@ -1457,6 +1230,7 @@ async function renderRecentHistory(games) {
         const hr = batting.homeRuns ?? 0;
         const rbi = batting.rbi ?? 0;
         const bb = batting.baseOnBalls ?? 0;
+        chartHits = h;
 
         const isPitcher = pitching && Object.keys(pitching).length > 0;
 
@@ -1474,6 +1248,7 @@ async function renderRecentHistory(games) {
       }
     }
 
+    chartData.push({ dateStr, hits: chartHits, won });
     const detailId = `history-detail-${game.gamePk}`;
     const arrowId = `history-arrow-${game.gamePk}`;
 
@@ -1489,11 +1264,25 @@ async function renderRecentHistory(games) {
     `;
   }).join('');
 
-  return `
-    <div class="card">
-      <div class="card-title">最近 ${games.length} 場</div>
-      ${rows}
+  const chartCols = chartData.slice().reverse();
+  const maxHits = Math.max(3, ...chartCols.map(c => c.hits));
+  const chartHtml = `
+    <div class="legend"><span><i class="win"></i>勝</span><span><i></i>敗</span></div>
+    <div class="chart" role="img" aria-label="最近 ${games.length} 場安打數">
+      ${chartCols.map(c => `
+        <div class="chart-col">
+          <div class="chart-val">${c.hits}</div>
+          <div class="chart-bar${c.won ? ' win' : ''}" style="height:${Math.round(c.hits / maxHits * 70) + 4}px"></div>
+          <div class="chart-date">${c.dateStr}</div>
+        </div>`).join('')}
     </div>
+  `;
+
+  return `
+    <div class="panel-title">最近 ${games.length} 場</div>
+    <div class="panel-sub">長條為大谷各場安打數，點下方列表可展開詳細數據</div>
+    <div class="card">${chartHtml}</div>
+    <div class="card">${rows}</div>
   `;
 }
 
@@ -1649,95 +1438,118 @@ function extractStats(statsData) {
   return { hittingStat, pitchingStat };
 }
 
-function renderStatsBlock(hittingStat, pitchingStat, labelPrefix, isFirst) {
-  let html = '';
-  const marginTop = isFirst ? '' : 'margin-top: 18px;';
-  const dividerHtml = isFirst ? '' : `<div style="border-top: 0.5px solid var(--border); ${marginTop} padding-top: 16px;">`;
-  const closeDivider = isFirst ? '' : '</div>';
+let statsView = null;
 
-  if (hittingStat) {
-    const games = hittingStat.gamesPlayed ?? 0;
-    if (games === 0) return '';
-    const ab = hittingStat.atBats ?? 0;
-    const h = hittingStat.hits ?? 0;
-    const hr = hittingStat.homeRuns ?? 0;
-    const rbi = hittingStat.rbi ?? 0;
-    const r = hittingStat.runs ?? 0;
-    const sb = hittingStat.stolenBases ?? 0;
-    const k = hittingStat.strikeOuts ?? 0;
-    const bb = hittingStat.baseOnBalls ?? 0;
-    const avg = hittingStat.avg ?? '.000';
-    const obp = hittingStat.obp ?? '.000';
-    const slg = hittingStat.slg ?? '.000';
-    const ops = hittingStat.ops ?? '.000';
-    html += `
-      ${dividerHtml}
-      <div class="section-label">⚾ ${labelPrefix} 打擊（${games} 場）</div>
-      <div class="stats-grid">
-        <div class="stat-cell"><div class="stat-label">打擊率</div><div class="stat-value highlight">${avg}</div></div>
-        <div class="stat-cell"><div class="stat-label">上壘率</div><div class="stat-value">${obp}</div></div>
-        <div class="stat-cell"><div class="stat-label">長打率</div><div class="stat-value">${slg}</div></div>
-        <div class="stat-cell"><div class="stat-label">OPS</div><div class="stat-value highlight">${ops}</div></div>
-        <div class="stat-cell"><div class="stat-label">安打</div><div class="stat-value">${h}</div></div>
-        <div class="stat-cell"><div class="stat-label">全壘打</div><div class="stat-value highlight">${hr}</div></div>
-        <div class="stat-cell"><div class="stat-label">打點</div><div class="stat-value">${rbi}</div></div>
-        <div class="stat-cell"><div class="stat-label">得分</div><div class="stat-value">${r}</div></div>
-        <div class="stat-cell"><div class="stat-label">盜壘</div><div class="stat-value">${sb}</div></div>
-        <div class="stat-cell"><div class="stat-label">三振</div><div class="stat-value">${k}</div></div>
-        <div class="stat-cell"><div class="stat-label">四壞</div><div class="stat-value">${bb}</div></div>
-        <div class="stat-cell"><div class="stat-label">打數</div><div class="stat-value">${ab}</div></div>
-      </div>
-      ${closeDivider}
-    `;
-  }
-
-  if (pitchingStat) {
-    const games = pitchingStat.gamesPlayed ?? 0;
-    if (games === 0) return html;
-    const wins = pitchingStat.wins ?? 0;
-    const losses = pitchingStat.losses ?? 0;
-    const era = pitchingStat.era ?? '0.00';
-    const ip = pitchingStat.inningsPitched ?? '0';
-    const k = pitchingStat.strikeOuts ?? 0;
-    const bb = pitchingStat.baseOnBalls ?? 0;
-    const whip = pitchingStat.whip ?? '0.00';
-    html += `
-      <div class="section-label" style="margin-top: 14px;">🔥 ${labelPrefix} 投球（${games} 場）</div>
-      <div class="stats-grid">
-        <div class="stat-cell"><div class="stat-label">勝-敗</div><div class="stat-value">${wins}-${losses}</div></div>
-        <div class="stat-cell"><div class="stat-label">防禦率</div><div class="stat-value highlight">${era}</div></div>
-        <div class="stat-cell"><div class="stat-label">局數</div><div class="stat-value">${ip}</div></div>
-        <div class="stat-cell"><div class="stat-label">WHIP</div><div class="stat-value">${whip}</div></div>
-        <div class="stat-cell"><div class="stat-label">三振</div><div class="stat-value highlight">${k}</div></div>
-        <div class="stat-cell"><div class="stat-label">四壞</div><div class="stat-value">${bb}</div></div>
-      </div>
-    `;
-  }
-  return html;
+function renderHeroStats(regularStatsData, postseasonStatsData) {
+  const ps = extractStats(postseasonStatsData).hittingStat;
+  const reg = extractStats(regularStatsData).hittingStat;
+  const usePost = (ps?.gamesPlayed ?? 0) > 0;
+  const s = usePost ? ps : reg;
+  if (!s || (s.gamesPlayed ?? 0) === 0) return;
+  document.getElementById('heroSub').textContent =
+    `${SEASON} ${usePost ? '季後賽' : '例行賽'} ${s.gamesPlayed} 場`;
+  document.getElementById('heroStats').innerHTML = `
+    <div><div class="hero-stat-label">打擊率</div><div class="hero-stat-num">${s.avg ?? '--'}</div></div>
+    <div><div class="hero-stat-label">OPS</div><div class="hero-stat-num">${s.ops ?? '--'}</div></div>
+    <div><div class="hero-stat-label">全壘打</div><div class="hero-stat-num">${s.homeRuns ?? 0}</div></div>
+  `;
 }
 
-function renderSeasonStats(regularStatsData, postseasonStatsData) {
-  const { hittingStat: psHitting, pitchingStat: psPitching } = extractStats(postseasonStatsData);
-  const { hittingStat: regHitting, pitchingStat: regPitching } = extractStats(regularStatsData);
+function pctOf(value, max) {
+  const n = parseFloat(value);
+  if (isNaN(n)) return 0;
+  return Math.max(0, Math.min(100, Math.round(n / max * 100)));
+}
 
-  const hasPostseason = (psHitting?.gamesPlayed ?? 0) > 0 || (psPitching?.gamesPlayed ?? 0) > 0;
-  const hasRegular = (regHitting?.gamesPlayed ?? 0) > 0 || (regPitching?.gamesPlayed ?? 0) > 0;
+function renderSeasonBlock(hit, pit, id, active) {
+  let html = `<div class="season-view${active ? ' active' : ''}" id="season-${id}">`;
 
-  if (!hasPostseason && !hasRegular) return '';
-
-  const title = hasPostseason ? `${SEASON} 季後賽 + 例行賽` : `${SEASON} 例行賽累計`;
-
-  let html = `<div class="card"><div class="card-title">${title}</div>`;
-
-  if (hasPostseason) {
-    html += renderStatsBlock(psHitting, psPitching, '季後賽', true);
+  if (hit && (hit.gamesPlayed ?? 0) > 0) {
+    html += `
+      <div class="sub-head" style="margin-top:0;">打擊　${hit.gamesPlayed} 場</div>
+      <div class="metric-row">
+        <div class="metric"><div class="metric-label">打擊率</div><div class="metric-num">${hit.avg ?? '--'}</div></div>
+        <div class="metric"><div class="metric-label">OPS</div><div class="metric-num">${hit.ops ?? '--'}</div></div>
+      </div>
+      <div class="bar-block">
+        <div class="bar-top"><span>上壘率</span><span>${hit.obp ?? '--'}</span></div>
+        <div class="bar"><i style="width:${pctOf(hit.obp, 0.6)}%"></i></div>
+      </div>
+      <div class="bar-block">
+        <div class="bar-top"><span>長打率</span><span>${hit.slg ?? '--'}</span></div>
+        <div class="bar"><i style="width:${pctOf(hit.slg, 1.0)}%"></i></div>
+      </div>
+      <div class="kv-grid">
+        <div class="kv"><span>全壘打</span><span>${hit.homeRuns ?? 0}</span></div>
+        <div class="kv"><span>安打</span><span>${hit.hits ?? 0}</span></div>
+        <div class="kv"><span>打點</span><span>${hit.rbi ?? 0}</span></div>
+        <div class="kv"><span>得分</span><span>${hit.runs ?? 0}</span></div>
+        <div class="kv"><span>盜壘</span><span>${hit.stolenBases ?? 0}</span></div>
+        <div class="kv"><span>三振</span><span>${hit.strikeOuts ?? 0}</span></div>
+        <div class="kv"><span>四壞</span><span>${hit.baseOnBalls ?? 0}</span></div>
+        <div class="kv"><span>打數</span><span>${hit.atBats ?? 0}</span></div>
+      </div>
+    `;
   }
 
-  if (hasRegular) {
-    html += renderStatsBlock(regHitting, regPitching, '例行賽', !hasPostseason);
+  if (pit && (pit.gamesPlayed ?? 0) > 0) {
+    html += `
+      <div class="sub-head">投球　${pit.gamesPlayed} 場登板</div>
+      <div class="metric-row">
+        <div class="metric"><div class="metric-label">防禦率</div><div class="metric-num">${pit.era ?? '--'}</div></div>
+        <div class="metric"><div class="metric-label">勝敗</div><div class="metric-num">${pit.wins ?? 0}-${pit.losses ?? 0}</div></div>
+      </div>
+      <div class="kv-grid">
+        <div class="kv"><span>局數</span><span>${pit.inningsPitched ?? '0'}</span></div>
+        <div class="kv"><span>WHIP</span><span>${pit.whip ?? '--'}</span></div>
+        <div class="kv"><span>三振</span><span>${pit.strikeOuts ?? 0}</span></div>
+        <div class="kv"><span>四壞</span><span>${pit.baseOnBalls ?? 0}</span></div>
+      </div>
+    `;
   }
 
   html += '</div>';
+  return html;
+}
+
+function setStatsView(view) {
+  statsView = view;
+  document.querySelectorAll('.season-view').forEach(el => {
+    el.classList.toggle('active', el.id === 'season-' + view);
+  });
+  document.querySelectorAll('.seg').forEach(el => {
+    const on = el.dataset.view === view;
+    el.classList.toggle('active', on);
+    el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+
+function renderSeasonStats(regularStatsData, postseasonStatsData) {
+  const ps = extractStats(postseasonStatsData);
+  const reg = extractStats(regularStatsData);
+  const hasPost = (ps.hittingStat?.gamesPlayed ?? 0) > 0 || (ps.pitchingStat?.gamesPlayed ?? 0) > 0;
+  const hasReg = (reg.hittingStat?.gamesPlayed ?? 0) > 0 || (reg.pitchingStat?.gamesPlayed ?? 0) > 0;
+
+  if (!hasPost && !hasReg) {
+    return '<div class="card"><div class="error" style="padding:20px;">目前沒有可顯示的數據</div></div>';
+  }
+
+  const valid = (statsView === 'po' && hasPost) || (statsView === 'rs' && hasReg);
+  if (!valid) statsView = hasPost ? 'po' : 'rs';
+
+  let html = `<div class="panel-title">${SEASON} 球季數據</div><div class="panel-sub">來源：MLB Stats API</div>`;
+
+  if (hasPost && hasReg) {
+    html += `
+      <div class="seg-row">
+        <button class="seg${statsView === 'po' ? ' active' : ''}" data-view="po" aria-pressed="${statsView === 'po'}" onclick="setStatsView('po')">季後賽</button>
+        <button class="seg${statsView === 'rs' ? ' active' : ''}" data-view="rs" aria-pressed="${statsView === 'rs'}" onclick="setStatsView('rs')">例行賽</button>
+      </div>
+    `;
+  }
+
+  if (hasPost) html += renderSeasonBlock(ps.hittingStat, ps.pitchingStat, 'po', statsView === 'po');
+  if (hasReg) html += renderSeasonBlock(reg.hittingStat, reg.pitchingStat, 'rs', statsView === 'rs');
   return html;
 }
 
@@ -1812,6 +1624,7 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
+updateNotifBtn();
 loadAll();
 </script>
 </body>

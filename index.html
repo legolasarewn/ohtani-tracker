@@ -328,7 +328,15 @@ button { font-family: inherit; }
 .field-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .field-title { font-size: 15px; font-weight: 600; }
 .field-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-.field-filter { display: flex; background: var(--bg); border-radius: 8px; padding: 2px; flex-shrink: 0; }
+.field-filter { display: flex; background: var(--bg); border-radius: 8px; padding: 2px; margin-top: 10px; }
+.field-filter button { flex: 1; }
+.field-toggle {
+  flex-shrink: 0; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--accent-text); color: var(--accent-text); background: transparent;
+  padding: 7px 12px; border-radius: 999px;
+}
+.field-toggle.on { background: var(--accent-text); color: var(--card-bg); }
+.field-toggle:disabled { opacity: 0.4; cursor: default; }
 .field-filter button {
   border: 0; background: transparent; color: var(--text-secondary);
   font: inherit; font-size: 12px; padding: 5px 9px; border-radius: 6px; cursor: pointer;
@@ -1054,6 +1062,7 @@ const FIELD_SVG_HOME_Y = 410; // SVG 裡本壘的位置
 let fieldFilter = 'all';        // all / dodgers / opponent
 let fieldSelectedKey = null;    // null = 自動顯示最新一顆
 let fieldData = null;           // 最近一次抓到的球場資料
+let fieldShowAll = false;       // false = 只顯示最新一顆；true = 顯示整場落點
 
 function esc(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1135,6 +1144,7 @@ function extractBattedBalls(allPlays, isDodgersHome) {
 
 function filteredBalls() {
   if (!fieldData) return [];
+  if (!fieldShowAll) return fieldData.balls.slice(-1); // 預設只看最新一顆
   if (fieldFilter === 'dodgers') return fieldData.balls.filter(b => b.dodgersBatting);
   if (fieldFilter === 'opponent') return fieldData.balls.filter(b => !b.dodgersBatting);
   return fieldData.balls;
@@ -1281,17 +1291,25 @@ function renderBallInfo() {
 
 function renderFieldInner() {
   const total = filteredBalls().length;
+  const allCount = fieldData.balls.length;
   const defTeam = fieldData.defenseTeamName ? translateTeam(fieldData.defenseTeamName) : '';
   const btn = (key, label) =>
     `<button class="${fieldFilter === key ? 'active' : ''}" onclick="setFieldFilter('${key}')">${label}</button>`;
+  const sub = fieldShowAll
+    ? `整場擊球・落點 ${total} 顆`
+    : `${defTeam ? `${esc(defTeam)}守備・` : ''}顯示最新一球`;
+  const toggleBtn = fieldShowAll
+    ? `<button class="field-toggle on" onclick="toggleFieldShowAll()" aria-pressed="true">回到場上</button>`
+    : `<button class="field-toggle" onclick="toggleFieldShowAll()" aria-pressed="false"${allCount === 0 ? ' disabled' : ''}>整場擊球${allCount > 0 ? ` ${allCount}` : ''}</button>`;
   return `
     <div class="field-head">
       <div>
         <div class="field-title">場上情形</div>
-        <div class="field-sub">${defTeam ? `${esc(defTeam)}守備・` : ''}落點 ${total} 顆</div>
+        <div class="field-sub">${sub}</div>
       </div>
-      <div class="field-filter">${btn('all', '全場')}${btn('dodgers', '道奇')}${btn('opponent', '對手')}</div>
+      ${toggleBtn}
     </div>
+    ${fieldShowAll ? `<div class="field-filter">${btn('all', '全場')}${btn('dodgers', '道奇')}${btn('opponent', '對手')}</div>` : ''}
     ${renderFieldSvg()}
     <div class="field-legend">
       <span><i class="hit"></i>安打</span><span><i class="hr"></i>全壘打</span>
@@ -1318,6 +1336,12 @@ function buildFieldHtml(linescore, allPlays, isDodgersHome) {
 function refreshFieldBox() {
   const box = document.getElementById('fieldBox');
   if (box && fieldData) box.innerHTML = renderFieldInner();
+}
+
+function toggleFieldShowAll() {
+  fieldShowAll = !fieldShowAll;
+  fieldSelectedKey = null;
+  refreshFieldBox();
 }
 
 function setFieldFilter(key) {

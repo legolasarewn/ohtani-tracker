@@ -28,6 +28,14 @@
   --danger-text: #C2312D;
   --warning-bg: #FBF0D9;
   --warning-text: #9A6410;
+  --field-grass: #D7EAD3;
+  --field-dirt: #E9D8BD;
+  --field-line: #FFFFFF;
+  --field-fence: #7E8C84;
+  --field-hit: #005A9C;
+  --field-hr: #E0A21B;
+  --field-out: #8896A3;
+  --field-other: #B9C2CA;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -47,6 +55,14 @@
     --danger-text: #F26B66;
     --warning-bg: #43330F;
     --warning-text: #E6B04A;
+    --field-grass: #1F3326;
+    --field-dirt: #3D3226;
+    --field-line: #C9D1CC;
+    --field-fence: #6E7D74;
+    --field-hit: #4FA3E3;
+    --field-hr: #F0B43C;
+    --field-out: #7D8894;
+    --field-other: #55606B;
   }
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -300,7 +316,64 @@ button { font-family: inherit; }
   display: inline-block; width: 8px; height: 8px; background: var(--success-text);
   border-radius: 50%; margin-right: 5px; animation: pulse 2s ease-in-out infinite;
 }
+.toast {
+  position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom));
+  transform: translateX(-50%); max-width: 88%; z-index: 20;
+  background: var(--text); color: var(--bg); font-size: 13px;
+  padding: 10px 16px; border-radius: 10px; display: none; text-align: center;
+}
+.toast.show { display: block; }
+/* ── 場上情形（球場圖）── */
+.field-box { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
+.field-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.field-title { font-size: 15px; font-weight: 600; }
+.field-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.field-filter { display: flex; background: var(--bg); border-radius: 8px; padding: 2px; flex-shrink: 0; }
+.field-filter button {
+  border: 0; background: transparent; color: var(--text-secondary);
+  font: inherit; font-size: 12px; padding: 5px 9px; border-radius: 6px; cursor: pointer;
+}
+.field-filter button.active { background: var(--card-bg); color: var(--accent-text); font-weight: 600; box-shadow: 0 0 0 0.5px var(--border); }
+.field-svg { display: block; width: 100%; height: auto; margin-top: 8px; }
+.field-svg .grass { fill: var(--field-grass); }
+.field-svg .dirt { fill: var(--field-dirt); }
+.field-svg .chalk { stroke: var(--field-line); stroke-width: 2; fill: none; }
+.field-svg .fence { stroke: var(--field-fence); stroke-width: 3; fill: none; }
+.field-svg .fbase { fill: #FFFFFF; stroke: var(--field-fence); stroke-width: 1; }
+.field-svg .fbase.on { fill: var(--blue); stroke: #FFFFFF; stroke-width: 2; }
+.field-svg .pos-dot { fill: var(--card-bg); stroke: var(--text-secondary); stroke-width: 1.5; }
+.field-svg .pos-abbr { font-size: 11px; font-weight: 700; fill: var(--text); text-anchor: middle; dominant-baseline: central; }
+.field-svg .pos-name { font-size: 15px; fill: var(--text); text-anchor: middle; paint-order: stroke; stroke: var(--field-grass); stroke-width: 4px; stroke-linejoin: round; }
+.field-svg .runner-name { font-size: 15px; font-weight: 700; fill: var(--accent-text); paint-order: stroke; stroke: var(--field-dirt); stroke-width: 4px; stroke-linejoin: round; }
+.field-svg .ball { stroke: #FFFFFF; stroke-width: 1.5; }
+.field-svg .ball.hit { fill: var(--field-hit); }
+.field-svg .ball.hr { fill: var(--field-hr); }
+.field-svg .ball.out { fill: var(--field-out); }
+.field-svg .ball.other { fill: var(--field-other); }
+.field-svg .ohtani-ring { fill: none; stroke: var(--text); stroke-width: 2.5; }
+.field-svg .ball-hit-area { fill: transparent; cursor: pointer; }
+.field-svg .ball-path { stroke: var(--text); stroke-width: 2; stroke-dasharray: 6 5; fill: none; opacity: 0.7; }
+.field-svg .ball-ring { fill: none; stroke: var(--text); stroke-width: 2; animation: ballRing 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes ballRing { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.8); opacity: 0; } }
+.field-svg .field-empty { font-size: 17px; fill: var(--text-secondary); text-anchor: middle; }
+.field-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--text-secondary); margin-top: 6px; justify-content: center; }
+.field-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+.field-legend i.hit { background: var(--field-hit); }
+.field-legend i.hr { background: var(--field-hr); }
+.field-legend i.out { background: var(--field-out); }
+.field-legend i.ohtani { background: transparent; box-shadow: inset 0 0 0 2px var(--text); }
+.ball-info { background: var(--bg); border-radius: 10px; padding: 10px 12px; margin-top: 10px; font-size: 13px; }
+.ball-info-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.ball-info-label { font-size: 12px; color: var(--text-secondary); }
+.ball-info-result { font-weight: 600; }
+.ball-info-result.hit { color: var(--accent-text); }
+.ball-info-result.hr { color: var(--warning-text); }
+.ball-info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; text-align: center; }
+.ball-info-num { font-size: 15px; font-weight: 600; }
+.ball-info-unit { font-size: 11px; color: var(--text-secondary); }
+
 @media (prefers-reduced-motion: reduce) {
+  .field-svg .ball-ring { animation: none; opacity: 0.6; }
   .live-tag, .auto-refresh-indicator, .spinner { animation: none; }
   .history-arrow { transition: none; }
 }
@@ -340,6 +413,8 @@ button { font-family: inherit; }
   <div class="updated" id="updated"></div>
 
 </div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <nav class="tabbar" aria-label="主要分頁">
   <div class="tabbar-inner">
@@ -438,30 +513,55 @@ function updateNotifBtn() {
   }
 }
 
-function showTestNotification() {
-  sendOhtaniNotification(
+async function showTestNotification() {
+  const ok = await sendOhtaniNotification(
     '✅ 大谷追蹤通知已開啟',
     '大谷輪到打擊、擊出安打或全壘打時，你會收到通知。'
   );
+  if (ok) showToast('已送出測試通知，請查看通知列');
 }
 
-function sendOhtaniNotification(title, body) {
-  if (!notificationsEnabled || Notification.permission !== 'granted') return;
+async function sendOhtaniNotification(title, body) {
+  if (!notificationsEnabled || Notification.permission !== 'granted') return false;
+  const options = {
+    body,
+    icon: 'icon-192.png',
+    badge: 'icon-192.png',
+    vibrate: [200, 100, 200],
+    tag: 'ohtani-live',
+    renotify: true
+  };
   try {
-    const notif = new Notification(title, {
-      body,
-      icon: 'icon-192.png',
-      badge: 'icon-192.png',
-      vibrate: [200, 100, 200],
-      tag: 'ohtani-live',
-      renotify: true,
-    });
-    setTimeout(() => notif.close(), 10000);
-    // 點通知後把視窗帶到前景
-    notif.onclick = () => { window.focus(); notif.close(); };
+    // Android 的 Chrome 不允許直接 new Notification()，必須透過 Service Worker 發送
+    if ('serviceWorker' in navigator) {
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise(resolve => setTimeout(() => resolve(null), 3000))
+      ]);
+      if (reg) {
+        await reg.showNotification(title, options);
+        return true;
+      }
+    }
+    // 沒有 Service Worker 時（例如電腦瀏覽器）退回一般寫法
+    const n = new Notification(title, options);
+    n.onclick = () => { window.focus(); n.close(); };
+    return true;
   } catch (err) {
     console.log('Notification error:', err);
+    showToast('通知發送失敗：' + (err && err.message ? err.message : err));
+    return false;
   }
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 4000);
 }
 
 function checkAndNotify(gamePk, isBatting, hits, homeRuns) {
@@ -859,6 +959,9 @@ async function renderLiveGame(game) {
     `;
   }
 
+  // 場上情形（球場圖）
+  const fieldHtml = buildFieldHtml(linescore, allPlays, isDodgersHome);
+
   const opponentZh = translateTeam(opponentTeam.name);
   const venueText = isDodgersHome ? '主場' : '客場';
 
@@ -935,9 +1038,299 @@ async function renderLiveGame(game) {
       </div>
 
       ${peopleHtml}
+      ${fieldHtml}
       ${ohtaniBoxHtml}
     </div>
   `;
+}
+
+// ── 場上情形（球場圖）──────────────────────────
+// MLB 落點座標：本壘約在 (125.42, 198.27)，1 單位約 2.5 呎，y 越小越往外野
+const FIELD_HOME_X = 125.42;
+const FIELD_HOME_Y = 198.27;
+const FIELD_FT_PER_UNIT = 2.5;
+const FIELD_SVG_HOME_Y = 410; // SVG 裡本壘的位置
+
+let fieldFilter = 'all';        // all / dodgers / opponent
+let fieldSelectedKey = null;    // null = 自動顯示最新一顆
+let fieldData = null;           // 最近一次抓到的球場資料
+
+function esc(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function shortName(person) {
+  const parts = (person?.fullName || '').trim().split(/\s+/);
+  if (parts.length === 0 || !parts[0]) return '';
+  let last = parts[parts.length - 1];
+  if (/^(Jr\.?|Sr\.?|II|III|IV)$/i.test(last) && parts.length > 1) last = parts[parts.length - 2];
+  return last;
+}
+
+// 呎座標（本壘為原點、往中外野為 +y）→ SVG 座標
+function fieldPt(xFt, yFt) {
+  return [xFt, FIELD_SVG_HOME_Y - yFt];
+}
+
+const TRAJECTORY_ZH = {
+  ground_ball: '滾地球',
+  line_drive: '平飛球',
+  fly_ball: '高飛球',
+  popup: '內野飛球',
+  bunt_grounder: '觸擊滾地',
+  bunt_popup: '觸擊飛球',
+  bunt_line_drive: '觸擊平飛'
+};
+
+function ballResultInfo(eventType, trajectory) {
+  const t = (eventType || '').toLowerCase();
+  if (t === 'home_run') return { text: '全壘打', cls: 'hr' };
+  if (t === 'single' || t === 'double' || t === 'triple') return { text: translateEvent(t).text, cls: 'hit' };
+  if (!t) return { text: '進行中', cls: 'other' };
+  if (t === 'field_error') return { text: '失誤上壘', cls: 'other' };
+  if (t === 'field_out') {
+    const outText = {
+      ground_ball: '滾地出局', line_drive: '平飛接殺', fly_ball: '高飛接殺',
+      popup: '內野飛球接殺', bunt_grounder: '觸擊出局', bunt_popup: '觸擊飛球接殺'
+    }[trajectory];
+    return { text: outText || '出局', cls: 'out' };
+  }
+  return { text: translateEvent(t).text, cls: 'out' };
+}
+
+// 從即時資料整理出所有擊出場內的球
+function extractBattedBalls(allPlays, isDodgersHome) {
+  const balls = [];
+  for (const play of allPlays || []) {
+    const events = play.playEvents || [];
+    let hit = null;
+    for (let i = events.length - 1; i >= 0; i--) {
+      const c = events[i]?.hitData?.coordinates;
+      if (c && c.coordX != null && c.coordY != null) { hit = events[i].hitData; break; }
+    }
+    if (!hit) continue;
+
+    const xFt = (hit.coordinates.coordX - FIELD_HOME_X) * FIELD_FT_PER_UNIT;
+    const yFt = (FIELD_HOME_Y - hit.coordinates.coordY) * FIELD_FT_PER_UNIT;
+    const half = play.about?.halfInning; // top / bottom
+    const dodgersBatting = (half === 'bottom') === isDodgersHome;
+
+    balls.push({
+      key: Number.isFinite(play.atBatIndex) ? play.atBatIndex : balls.length,
+      xFt, yFt,
+      eventType: play.result?.eventType || '',
+      batter: play.matchup?.batter || null,
+      isOhtani: play.matchup?.batter?.id === PLAYER_ID,
+      dodgersBatting,
+      inning: play.about?.inning ?? '',
+      halfZh: half === 'top' ? '上' : '下',
+      trajectory: hit.trajectory || '',
+      launchSpeed: hit.launchSpeed,
+      launchAngle: hit.launchAngle,
+      totalDistance: hit.totalDistance
+    });
+  }
+  return balls;
+}
+
+function filteredBalls() {
+  if (!fieldData) return [];
+  if (fieldFilter === 'dodgers') return fieldData.balls.filter(b => b.dodgersBatting);
+  if (fieldFilter === 'opponent') return fieldData.balls.filter(b => !b.dodgersBatting);
+  return fieldData.balls;
+}
+
+function selectedBall(balls) {
+  if (balls.length === 0) return null;
+  if (fieldSelectedKey !== null) {
+    const found = balls.find(b => b.key === fieldSelectedKey);
+    if (found) return found;
+  }
+  return balls[balls.length - 1];
+}
+
+function renderFieldSvg() {
+  const d = fieldData;
+  const balls = filteredBalls();
+  const sel = selectedBall(balls);
+
+  // 外野全壘打牆：兩側標竿 330 呎、中外野 400 呎
+  const lp = fieldPt(-233, 233), rp = fieldPt(233, 233), home = fieldPt(0, 0);
+  const ctrlY = (4 * (FIELD_SVG_HOME_Y - 400) - lp[1] - rp[1]) / 2;
+  const fenceD = `M ${lp[0]} ${lp[1]} Q 0 ${ctrlY} ${rp[0]} ${rp[1]}`;
+  const fairD = `M ${home[0]} ${home[1]} L ${lp[0]} ${lp[1]} Q 0 ${ctrlY} ${rp[0]} ${rp[1]} Z`;
+
+  const b1 = fieldPt(63.6, 63.6), b2 = fieldPt(0, 127.3), b3 = fieldPt(-63.6, 63.6);
+  const mound = fieldPt(0, 60.5);
+  const baseRect = (p, on) =>
+    `<rect class="fbase${on ? ' on' : ''}" x="-6" y="-6" width="12" height="12" transform="translate(${p[0]} ${p[1]}) rotate(45)"/>`;
+
+  // 守備位置（標準站位，不是真實位置）
+  const def = d.defense || {};
+  const positions = [
+    ['P', 'pitcher', 0, 60.5],
+    ['C', 'catcher', 0, -14],
+    ['1B', 'first', 74, 100],
+    ['2B', 'second', 55, 146],
+    ['SS', 'shortstop', -55, 146],
+    ['3B', 'third', -74, 100],
+    ['LF', 'left', -150, 255],
+    ['CF', 'center', 0, 305],
+    ['RF', 'right', 150, 255]
+  ];
+  const fieldersSvg = positions.map(([abbr, key, x, y]) => {
+    const [sx, sy] = fieldPt(x, y);
+    const name = shortName(def[key]);
+    return `<g>
+      <circle class="pos-dot" cx="${sx}" cy="${sy}" r="12"/>
+      <text class="pos-abbr" x="${sx}" y="${sy}">${abbr}</text>
+      ${name ? (abbr === 'C'
+        ? `<text class="pos-name" x="${sx + 18}" y="${sy + 5}" text-anchor="start">${esc(name)}</text>`
+        : `<text class="pos-name" x="${sx}" y="${sy + 28}">${esc(name)}</text>`) : ''}
+    </g>`;
+  }).join('');
+
+  // 壘上跑者名字
+  const off = d.offense || {};
+  const runnerSvg = [
+    off.first ? `<text class="runner-name" x="${b1[0] + 12}" y="${b1[1] + 5}" text-anchor="start">${esc(shortName(off.first))}</text>` : '',
+    off.second ? `<text class="runner-name" x="${b2[0]}" y="${b2[1] - 13}" text-anchor="middle">${esc(shortName(off.second))}</text>` : '',
+    off.third ? `<text class="runner-name" x="${b3[0] - 12}" y="${b3[1] + 5}" text-anchor="end">${esc(shortName(off.third))}</text>` : ''
+  ].join('');
+
+  // 擊球落點（太遠的全壘打縮回畫面內）
+  const toSvg = (b) => {
+    let { xFt, yFt } = b;
+    const dist = Math.hypot(xFt, yFt);
+    if (dist > 425) { xFt *= 425 / dist; yFt *= 425 / dist; }
+    xFt = Math.max(-240, Math.min(240, xFt));
+    yFt = Math.max(-30, yFt);
+    return fieldPt(xFt, yFt);
+  };
+  const ballsSvg = balls.map(b => {
+    if (sel && b.key === sel.key) return '';
+    const [sx, sy] = toSvg(b);
+    const info = ballResultInfo(b.eventType, b.trajectory);
+    return `<g onclick="selectFieldBall(${b.key})">
+      ${b.isOhtani ? `<circle class="ohtani-ring" cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="11"/>` : ''}
+      <circle class="ball ${info.cls}" cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="7"/>
+      <circle class="ball-hit-area" cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="16"/>
+    </g>`;
+  }).join('');
+
+  let selSvg = '';
+  if (sel) {
+    const [sx, sy] = toSvg(sel);
+    const info = ballResultInfo(sel.eventType, sel.trajectory);
+    selSvg = `
+      <path class="ball-path" d="M ${home[0]} ${home[1]} L ${sx.toFixed(1)} ${sy.toFixed(1)}"/>
+      <circle class="ball-ring" cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="12"/>
+      ${sel.isOhtani ? `<circle class="ohtani-ring" cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="14.5"/>` : ''}
+      <circle class="ball ${info.cls}" cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="10"/>`;
+  }
+
+  const emptySvg = balls.length === 0
+    ? `<text class="field-empty" x="0" y="${fieldPt(0, 200)[1]}">還沒有擊出場內的球</text>` : '';
+
+  return `
+    <svg class="field-svg" viewBox="-250 -20 500 470" role="img" aria-label="球場圖：守備位置與擊球落點">
+      <defs><clipPath id="fairClip"><path d="${fairD}"/></clipPath></defs>
+      <path class="grass" d="${fairD}"/>
+      <g clip-path="url(#fairClip)">
+        <circle class="dirt" cx="${mound[0]}" cy="${mound[1]}" r="95"/>
+        <rect class="grass" x="-38" y="-38" width="76" height="76" transform="translate(${mound[0]} ${fieldPt(0, 63.6)[1]}) rotate(45)"/>
+      </g>
+      <circle class="dirt" cx="${home[0]}" cy="${home[1]}" r="14"/>
+      <circle class="dirt" cx="${mound[0]}" cy="${mound[1]}" r="9"/>
+      <path class="chalk" d="M ${lp[0]} ${lp[1]} L ${home[0]} ${home[1]} L ${rp[0]} ${rp[1]}"/>
+      <path class="fence" d="${fenceD}"/>
+      ${baseRect(b1, !!off.first)}${baseRect(b2, !!off.second)}${baseRect(b3, !!off.third)}
+      <path class="fbase" d="M ${home[0] - 6} ${home[1] - 6} h 12 v 6 l -6 6 l -6 -6 Z"/>
+      ${fieldersSvg}
+      ${runnerSvg}
+      ${ballsSvg}
+      ${selSvg}
+      ${emptySvg}
+    </svg>`;
+}
+
+function renderBallInfo() {
+  const sel = selectedBall(filteredBalls());
+  if (!sel) return '';
+  const info = ballResultInfo(sel.eventType, sel.trajectory);
+  const isLatest = fieldData.balls.length > 0 && fieldData.balls[fieldData.balls.length - 1].key === sel.key;
+  const kmh = sel.launchSpeed != null ? Math.round(sel.launchSpeed * 1.609) : null;
+  const mph = sel.launchSpeed != null ? Number(sel.launchSpeed).toFixed(1) : '-';
+  const meters = sel.totalDistance != null ? Math.round(sel.totalDistance * 0.3048) : null;
+  const feet = sel.totalDistance != null ? Math.round(sel.totalDistance) : '-';
+  return `
+    <div class="ball-info">
+      <div class="ball-info-top">
+        <span class="ball-info-label">${isLatest ? '最新擊球' : '點選的擊球'}　${sel.inning}局${sel.halfZh}</span>
+        <span>${esc(sel.batter?.fullName || '')}${sel.isOhtani ? '<span class="chip">大谷</span>' : ''}</span>
+        <span class="ball-info-result ${info.cls}">${info.text}</span>
+      </div>
+      <div class="ball-info-grid">
+        <div><div class="ball-info-num">${TRAJECTORY_ZH[sel.trajectory] || '-'}</div><div class="ball-info-unit">球路</div></div>
+        <div><div class="ball-info-num">${kmh ?? '-'}</div><div class="ball-info-unit">初速 km/h<br>(${mph} mph)</div></div>
+        <div><div class="ball-info-num">${sel.launchAngle != null ? Math.round(sel.launchAngle) + '°' : '-'}</div><div class="ball-info-unit">仰角</div></div>
+        <div><div class="ball-info-num">${meters ?? '-'}</div><div class="ball-info-unit">距離 公尺<br>(${feet} 呎)</div></div>
+      </div>
+    </div>`;
+}
+
+function renderFieldInner() {
+  const total = filteredBalls().length;
+  const defTeam = fieldData.defenseTeamName ? translateTeam(fieldData.defenseTeamName) : '';
+  const btn = (key, label) =>
+    `<button class="${fieldFilter === key ? 'active' : ''}" onclick="setFieldFilter('${key}')">${label}</button>`;
+  return `
+    <div class="field-head">
+      <div>
+        <div class="field-title">場上情形</div>
+        <div class="field-sub">${defTeam ? `${esc(defTeam)}守備・` : ''}落點 ${total} 顆</div>
+      </div>
+      <div class="field-filter">${btn('all', '全場')}${btn('dodgers', '道奇')}${btn('opponent', '對手')}</div>
+    </div>
+    ${renderFieldSvg()}
+    <div class="field-legend">
+      <span><i class="hit"></i>安打</span><span><i class="hr"></i>全壘打</span>
+      <span><i class="out"></i>出局</span><span><i class="ohtani"></i>大谷</span>
+    </div>
+    ${renderBallInfo()}`;
+}
+
+function buildFieldHtml(linescore, allPlays, isDodgersHome) {
+  try {
+    fieldData = {
+      defense: linescore.defense || {},
+      offense: linescore.offense || {},
+      defenseTeamName: linescore.defense?.team?.name || '',
+      balls: extractBattedBalls(allPlays, isDodgersHome)
+    };
+    return `<div class="field-box" id="fieldBox">${renderFieldInner()}</div>`;
+  } catch (err) {
+    console.log('Field render failed:', err);
+    return '';
+  }
+}
+
+function refreshFieldBox() {
+  const box = document.getElementById('fieldBox');
+  if (box && fieldData) box.innerHTML = renderFieldInner();
+}
+
+function setFieldFilter(key) {
+  fieldFilter = key;
+  fieldSelectedKey = null;
+  refreshFieldBox();
+}
+
+function selectFieldBall(key) {
+  const balls = fieldData?.balls || [];
+  const isLatest = balls.length > 0 && balls[balls.length - 1].key === key;
+  fieldSelectedKey = isLatest ? null : key;
+  refreshFieldBox();
 }
 
 async function renderNextGame(game) {
